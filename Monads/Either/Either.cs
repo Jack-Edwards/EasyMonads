@@ -41,30 +41,30 @@ namespace Monads
          }
       }
 
-      public static Either<TLeft, TRight> From(TRight value)
+      public static Either<TLeft, TRight> FromRight(TRight value)
       {
          return value is null
             ? FromBottom()
             : new Either<TLeft, TRight>(value);
       }
 
-      public static async Task<Either<TLeft, TRight>> FromAsync(Task<TRight> rightAsync)
+      public static async Task<Either<TLeft, TRight>> FromRightAsync(Task<TRight> rightAsync)
       {
          var right = await rightAsync;
          return right is null
             ? FromBottom()
-            : right;
+            : FromRight(right);
       }
 
-      public static async Task<Either<TLeft, TRight>> FromAsync(Task<TRight> rightAsync, TLeft left)
+      public static async Task<Either<TLeft, TRight>> FromRightAsync(Task<TRight> rightAsync, TLeft left)
       {
          var right = await rightAsync;
          return right is null
-            ? From(left)
-            : From(right);
+            ? FromLeft(left)
+            : FromRight(right);
       }
 
-      public static Either<TLeft, TRight> From(TLeft value)
+      public static Either<TLeft, TRight> FromLeft(TLeft value)
       {
          return value is null
             ? FromBottom()
@@ -183,7 +183,7 @@ namespace Monads
          return IsRight
             ? map(_right)
             : IsLeft
-               ? Either<TLeft, TResult>.From(_left)
+               ? Either<TLeft, TResult>.FromLeft(_left)
                : Either<TLeft, TResult>.FromBottom();
       }
 
@@ -197,7 +197,7 @@ namespace Monads
          return IsLeft
             ? map(_left)
             : IsRight
-               ? Either<TResult, TRight>.From(_right)
+               ? Either<TResult, TRight>.FromRight(_right)
                : Either<TResult, TRight>.FromBottom();
       }
 
@@ -211,7 +211,7 @@ namespace Monads
          return IsRight
             ? await mapAsync(_right)
             : IsLeft
-               ? Either<TLeft, TResult>.From(_left)
+               ? Either<TLeft, TResult>.FromLeft(_left)
                : Either<TLeft, TResult>.FromBottom();
       }
 
@@ -225,7 +225,7 @@ namespace Monads
          return IsRight
             ? bind(_right)
             : IsLeft
-               ? Either<TLeft, TResult>.From(_left)
+               ? Either<TLeft, TResult>.FromLeft(_left)
                : Either<TLeft, TResult>.FromBottom();
       }
 
@@ -239,7 +239,7 @@ namespace Monads
          return IsRight
             ? await bindAsync(_right)
             : IsLeft
-               ? Either<TLeft, TResult>.From(_left)
+               ? Either<TLeft, TResult>.FromLeft(_left)
                : Either<TLeft, TResult>.FromBottom();
       }
 
@@ -313,7 +313,7 @@ namespace Monads
 
       public Either<TLeft, TResult> SelectMany<TIntermediate, TResult>(Func<TRight, Either<TLeft, TIntermediate>> bind, Func<TRight, TIntermediate, TResult> project)
       {
-         return Bind(x => bind(x).Bind(y => Either<TLeft, TResult>.From(project(x, y))));
+         return Bind(x => bind(x).Bind(y => Either<TLeft, TResult>.FromRight(project(x, y))));
       }
 
       public Either<TLeft, TRight> Where(Func<TRight, bool> predicate)
@@ -328,8 +328,8 @@ namespace Monads
             : FromBottom();
       }
 
-      public static implicit operator Either<TLeft, TRight>(TLeft left) => From(left);
+      public static implicit operator Either<TLeft, TRight>(TLeft left) => FromLeft(left);
 
-      public static implicit operator Either<TLeft, TRight>(TRight right) => From(right);
+      public static implicit operator Either<TLeft, TRight>(TRight right) => FromRight(right);
    }
 }

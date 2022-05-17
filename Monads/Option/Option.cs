@@ -192,22 +192,22 @@ namespace Monads
       public Either<TLeft, TValue> ToEither<TLeft>(TLeft left)
       {
          return IsSome
-            ? Either<TLeft, TValue>.From(_value)
-            : Either<TLeft, TValue>.From(left);
+            ? Either<TLeft, TValue>.FromRight(_value)
+            : Either<TLeft, TValue>.FromLeft(left);
       }
 
       public Either<TValue, Unit> ToLeftEither()
       {
          return IsSome
-            ? Either<TValue, Unit>.From(_value)
-            : Either<TValue, Unit>.From(Unit.Default);
+            ? Either<TValue, Unit>.FromLeft(_value)
+            : Either<TValue, Unit>.FromRight(Unit.Default);
       }
 
       public Either<TValue, TRight> ToLeftEither<TRight>(TRight right)
       {
          return IsSome
-            ? Either<TValue, TRight>.From(_value)
-            : Either<TValue, TRight>.From(right);
+            ? Either<TValue, TRight>.FromLeft(_value)
+            : Either<TValue, TRight>.FromRight(right);
       }
 
       public Option<TResult> Select<TResult>(Func<TValue, TResult> map)

@@ -38,7 +38,7 @@ namespace Monads
       public static Task<Either<TLeft, TResult>> MapAsync<TLeft, TRight, TResult>(this Task<Either<TLeft, TRight>> either, Func<TRight, Task<Either<TLeft, TResult>>> map)
       {
          return either.MatchAsync(
-            left: left => Either<TLeft, TResult>.From(left),
+            left: left => Either<TLeft, TResult>.FromLeft(left),
             rightAsync: right => map(right));
       }
 
@@ -46,8 +46,8 @@ namespace Monads
       {
          return either.MapAsync(
                 async right =>
-                    await Either<TLeft, TRight>.From(right).MatchAsync(
-                       left => Either<TLeft, TResult>.From(left),
+                    await Either<TLeft, TRight>.FromRight(right).MatchAsync(
+                       left => Either<TLeft, TResult>.FromLeft(left),
                        async right2 => await bind(right2)));
       }
 
@@ -61,7 +61,7 @@ namespace Monads
       public static async Task<Either<TLeft, TResult>> Select<TLeft, TRight, TResult>(this Task<Either<TLeft, TRight>> either, Func<TRight, TResult> map)
       {
          return await either.MatchAsync(
-            Either<TLeft, TResult>.From,
+            Either<TLeft, TResult>.FromLeft,
             right => map(right));
       }
 
@@ -83,7 +83,7 @@ namespace Monads
             {
                return predicate(right)
                   ? right
-                  : Either<TLeft, TRight>.From(right);
+                  : Either<TLeft, TRight>.FromRight(right);
             });
       }
    }
