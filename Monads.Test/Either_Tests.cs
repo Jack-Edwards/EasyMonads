@@ -52,7 +52,7 @@ namespace Monads.Test
          string value = "test";
          bool doRightInvoked = false;
 
-         var sut = Either<Unit, string>.From(value);
+         var sut = Either<Unit, string>.FromRight(value);
          sut.DoLeft(_ => Assert.Fail());
          sut.DoRight(right =>
          {
@@ -73,7 +73,7 @@ namespace Monads.Test
       [Test]
       public void FromRight_Returns_Bottom_If_Null_Provided()
       {
-         var sut = Either<Unit, string>.From(null);
+         var sut = Either<Unit, string>.FromRight(null);
          sut.DoLeft(_ => Assert.Fail());
          sut.DoRight(_ => Assert.Fail());
 
@@ -98,7 +98,7 @@ namespace Monads.Test
          int value = 5;
          bool doLeftInvoked = false;
 
-         var sut = Either<int, Unit>.From(value);
+         var sut = Either<int, Unit>.FromLeft(value);
          sut.DoLeft(left =>
          {
             doLeftInvoked = true;
@@ -119,7 +119,7 @@ namespace Monads.Test
       [Test]
       public void FromLeft_Returns_Bottom_If_Null_Provided()
       {
-         var sut = Either<object, Unit>.From(null);
+         var sut = Either<object, Unit>.FromLeft(null);
          sut.DoLeft(_ => Assert.Fail());
          sut.DoRight(_ => Assert.Fail());
 
@@ -145,7 +145,7 @@ namespace Monads.Test
          string value = "test";
          Task<string> task = Task.FromResult(value);
 
-         var eitherTask = Either<Unit, string>.FromAsync(task);
+         var eitherTask = Either<Unit, string>.FromRightAsync(task);
          var sut = await eitherTask;
 
          bool doRightInvoked = false;
@@ -172,7 +172,7 @@ namespace Monads.Test
          string value = null;
          Task<string> task = Task.FromResult(value);
 
-         var eitherTask = Either<Unit, string>.FromAsync(task);
+         var eitherTask = Either<Unit, string>.FromRightAsync(task);
          var sut = await eitherTask;
 
          sut.DoLeft(_ => Assert.Fail());
@@ -196,7 +196,7 @@ namespace Monads.Test
          string value = null;
          Task<string> task = Task.FromResult(value);
 
-         var eitherTask = Either<int, string>.FromAsync(task, 3);
+         var eitherTask = Either<int, string>.FromRightAsync(task, 3);
          var sut = await eitherTask;
 
          bool doLeftInvoked = true;
