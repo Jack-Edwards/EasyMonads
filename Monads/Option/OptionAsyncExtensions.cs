@@ -40,7 +40,7 @@ namespace Monads
       {
          return option.MatchAsync(
             () => left,
-            value => Either<TLeft, TValue>.FromRight(value));
+            value => Either<TLeft, TValue>.From(value));
       }
 
       public static async Task<Option<TResult>> Select<TValue, TResult>(this Task<Option<TValue>> option, Func<TValue, TResult> map)
