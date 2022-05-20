@@ -303,6 +303,13 @@ namespace Monads
          return Unit.Default;
       }
 
+      public Maybe<TRight> ToMaybe()
+      {
+         return IsRight
+            ? Maybe<TRight>.From(_right)
+            : Maybe<TRight>.None;
+      }
+
       public Either<TLeft, TResult> Select<TResult>(Func<TRight, TResult> map)
       {
          return Match(
