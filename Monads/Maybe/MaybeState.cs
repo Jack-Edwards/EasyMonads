@@ -1,6 +1,6 @@
 ﻿namespace Monads
 {
-   internal enum OptionState
+   internal enum MaybeState
    {
       None,
       Some

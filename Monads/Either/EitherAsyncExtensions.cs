@@ -51,10 +51,10 @@ namespace Monads
                        async right2 => await bind(right2)));
       }
 
-      public static Task<Option<TRight>> ToOptionTask<TLeft, TRight>(this Task<Either<TLeft, TRight>> either)
+      public static Task<Maybe<TRight>> ToOptionTask<TLeft, TRight>(this Task<Either<TLeft, TRight>> either)
       {
          return either.MatchAsync(
-            left => Option<TRight>.None,
+            left => Maybe<TRight>.None,
             right => right);
       }
 
