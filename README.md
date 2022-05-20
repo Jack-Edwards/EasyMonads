@@ -67,13 +67,13 @@ A better option is deserializing to the correct data type, then storing the inst
 ```cs
 if (httpStatus == 200)
 {
-   // Return the DTO
-   return Either<int, MyDTO>.FromRight(responseData);
+   MyDTO data = JsonSerializer.Deserialize<MyDTO>(responseData);
+   return Either<int, MyDTO>.FromRight(data);
 }
 else
 {
-   // Return the error code
-   return Either<int, MyDTO>.FromLeft(responseData);
+   int errorCode = JsonSerializer.Deserialize<int>(responseData)
+   return Either<int, MyDTO>.FromLeft(errorCode);
 }
 
 .....
