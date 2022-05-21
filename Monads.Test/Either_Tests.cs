@@ -218,6 +218,90 @@ namespace Monads.Test
       }
 
       [Test]
+      public async Task MatchAsync_Works_For_Left_Async()
+      {
+         var leftEither = Either<int, string>.FromLeft(4);
+         string leftSut = await leftEither.MatchAsync(
+            async left => await Task.FromResult("left"),
+            right => "right",
+            () => "bottom");
+
+         Assert.AreEqual("left", leftSut);
+
+         var rightEither = Either<int, string>.FromRight("foo");
+         string rightSut = await rightEither.MatchAsync(
+            async left => await Task.FromResult("left"),
+            right => "right",
+            () => "bottom");
+
+         Assert.AreEqual("right", rightSut);
+
+         var bottomEither = Either<int, string>.FromBottom();
+         string bottomSut = await bottomEither.MatchAsync(
+            async left => await Task.FromResult("left"),
+            right => "right",
+            () => "bottom");
+
+         Assert.AreEqual("bottom", bottomSut);
+      }
+
+      [Test]
+      public async Task MatchAsync_Works_For_Right_Async()
+      {
+         var leftEither = Either<int, string>.FromLeft(4);
+         string leftSut = await leftEither.MatchAsync(
+            left => "left",
+            async right => await Task.FromResult("right"),
+            () => "bottom");
+
+         Assert.AreEqual("left", leftSut);
+
+         var rightEither = Either<int, string>.FromRight("foo");
+         string rightSut = await rightEither.MatchAsync(
+            left => "left",
+            async right => await Task.FromResult("right"),
+            () => "bottom");
+
+         Assert.AreEqual("right", rightSut);
+
+         var bottomEither = Either<int, string>.FromBottom();
+         string bottomSut = await bottomEither.MatchAsync(
+            left => "left",
+            async right => await Task.FromResult("right"),
+            () => "bottom");
+
+         Assert.AreEqual("bottom", bottomSut);
+      }
+
+      [Test]
+      public async Task MatchAsync_Works_For_Left_And_Right_Async()
+      {
+         var leftEither = Either<int, string>.FromLeft(4);
+         string leftSut = await leftEither.MatchAsync(
+            async left => await Task.FromResult("left"),
+            async right => await Task.FromResult("right"),
+            () => "bottom");
+
+         Assert.AreEqual("left", leftSut);
+
+         var rightEither = Either<int, string>.FromRight("foo");
+         string rightSut = await rightEither.MatchAsync(
+            async left => await Task.FromResult("left"),
+            async right => await Task.FromResult("right"),
+            () => "bottom");
+
+         Assert.AreEqual("right", rightSut);
+
+         var bottomEither = Either<int, string>.FromBottom();
+         string bottomSut = await bottomEither.MatchAsync(
+            async left => await Task.FromResult("left"),
+            async right => await Task.FromResult("right"),
+            () => "bottom");
+
+         Assert.AreEqual("bottom", bottomSut);
+      }
+
+      [Test]
       public void Select_Works_For_Right_Either()
       {
          string value = "test";
