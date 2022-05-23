@@ -15,7 +15,7 @@ namespace Monads
 
          if (left is null)
          {
-            _state = EitherState.Bottom;
+            _state = EitherState.Neither;
             _left = default;
          }
          else
@@ -31,7 +31,7 @@ namespace Monads
 
          if (right is null)
          {
-            _state = EitherState.Bottom;
+            _state = EitherState.Neither;
             _right = default;
          }
          else
@@ -44,7 +44,7 @@ namespace Monads
       public static Either<TLeft, TRight> FromRight(TRight value)
       {
          return value is null
-            ? FromBottom()
+            ? Neither
             : new Either<TLeft, TRight>(value);
       }
 
@@ -52,8 +52,8 @@ namespace Monads
       {
          var right = await rightAsync;
          return right is null
-            ? FromBottom()
-            : FromRight(right);
+            ? Neither
+            : right;
       }
 
       public static async Task<Either<TLeft, TRight>> FromRightAsync(Task<TRight> rightAsync, TLeft left)
@@ -67,13 +67,8 @@ namespace Monads
       public static Either<TLeft, TRight> FromLeft(TLeft value)
       {
          return value is null
-            ? FromBottom()
+            ? Neither
             : new Either<TLeft, TRight>(value);
-      }
-
-      public static Either<TLeft, TRight> FromBottom()
-      {
-         return new Either<TLeft, TRight>();
       }
 
       public bool IsLeft
@@ -82,8 +77,8 @@ namespace Monads
       public bool IsRight
       { get { return _state == EitherState.Right; } }
 
-      public bool IsBottom
-      { get { return _state == EitherState.Bottom; } }
+      public bool IsNeither
+      { get { return _state == EitherState.Neither; } }
 
       public TRight RightOrDefault(TRight defaultValue)
       {
@@ -99,6 +94,36 @@ namespace Monads
             : defaultValue;
       }
 
+      private static Unit ValidateAction(Action action)
+      {
+         if (action is null)
+         {
+            throw new ArgumentNullException(nameof(action));
+         }
+
+         return Unit.Default;
+      }
+
+      private static Unit ValidateAction<T>(Action<T> action)
+      {
+         if (action is null)
+         {
+            throw new ArgumentNullException(nameof(action));
+         }
+
+         return Unit.Default;
+      }
+
+      private static Unit ValidateFunction<T1, T2>(Func<T1, T2> function)
+      {
+         if (function is null)
+         {
+            throw new ArgumentNullException(nameof(function));
+         }
+
+         return Unit.Default;
+      }
+
       private static Unit ValidateMatch<TL, TR>(Func<TLeft, TL> left, Func<TRight, TR> right)
       {
          if (left is null)
@@ -111,144 +136,132 @@ namespace Monads
             throw new ArgumentNullException(nameof(right));
          }
 
-         return default;
+         return Unit.Default;
       }
 
-      private static TResult MatchBottom<TResult>(Func<TResult> bottom = null)
-      {
-         return bottom is null
-               ? default
-               : bottom();
-      }
-
-      public TResult Match<TResult>(Func<TLeft, TResult> left, Func<TRight, TResult> right, Func<TResult> bottom = null)
+      public TResult Match<TResult>(Func<TLeft, TResult> left, Func<TRight, TResult> right, TResult neither)
       {
          ValidateMatch(left, right);
 
+#pragma warning disable CS8524
          return _state switch
          {
-            EitherState.Bottom => MatchBottom(bottom),
+            EitherState.Neither => neither,
             EitherState.Left => left(_left),
-            EitherState.Right => right(_right),
-            _ => throw new NotImplementedException()
+            EitherState.Right => right(_right)
          };
+#pragma warning restore CS8524
       }
 
-      public async Task<TResult> MatchAsync<TResult>(Func<TLeft, Task<TResult>> leftAsync, Func<TRight, TResult> right, Func<TResult> bottom = null)
+      public TResult Match<TResult>(TResult leftOrNeither, Func<TRight, TResult> right)
+      {
+         ValidateFunction(right);
+
+         return IsRight
+            ? right(_right)
+            : leftOrNeither;
+      }
+
+      public async Task<TResult> MatchAsync<TResult>(Func<TLeft, Task<TResult>> leftAsync, Func<TRight, TResult> right, TResult neither)
       {
          ValidateMatch(leftAsync, right);
 
+#pragma warning disable CS8524
          return _state switch
          {
-            EitherState.Bottom => MatchBottom(bottom),
+            EitherState.Neither => neither,
             EitherState.Left => await leftAsync(_left),
-            EitherState.Right => right(_right),
-            _ => throw new NotImplementedException()
+            EitherState.Right => right(_right)
          };
+#pragma warning restore CS8524
       }
 
-      public async Task<TResult> MatchAsync<TResult>(Func<TLeft, TResult> left, Func<TRight, Task<TResult>> rightAsync, Func<TResult> bottom = null)
+      public async Task<TResult> MatchAsync<TResult>(Func<TLeft, TResult> left, Func<TRight, Task<TResult>> rightAsync, TResult neither)
       {
          ValidateMatch(left, rightAsync);
 
+#pragma warning disable CS8524
          return _state switch
          {
-            EitherState.Bottom => MatchBottom(bottom),
+            EitherState.Neither => neither,
             EitherState.Left => left(_left),
-            EitherState.Right => await rightAsync(_right),
-            _ => throw new NotImplementedException()
+            EitherState.Right => await rightAsync(_right)
          };
+#pragma warning restore CS8524
       }
 
-      public async Task<TResult> MatchAsync<TResult>(Func<TLeft, Task<TResult>> leftAsync, Func<TRight, Task<TResult>> rightAsync, Func<TResult> bottom = null)
+      public async Task<TResult> MatchAsync<TResult>(Func<TLeft, Task<TResult>> leftAsync, Func<TRight, Task<TResult>> rightAsync, TResult neither)
       {
          ValidateMatch(leftAsync, rightAsync);
 
+#pragma warning disable CS8524
          return _state switch
          {
-            EitherState.Bottom => MatchBottom(bottom),
+            EitherState.Neither => neither,
             EitherState.Left => await leftAsync(_left),
-            EitherState.Right => await rightAsync(_right),
-            _ => throw new NotImplementedException()
+            EitherState.Right => await rightAsync(_right)
          };
+#pragma warning restore CS8524
       }
 
       public Either<TLeft, TResult> Map<TResult>(Func<TRight, TResult> map)
       {
-         if (map is null)
-         {
-            throw new ArgumentNullException(nameof(map));
-         }
+         ValidateFunction(map);
 
          return IsRight
             ? map(_right)
             : IsLeft
                ? Either<TLeft, TResult>.FromLeft(_left)
-               : Either<TLeft, TResult>.FromBottom();
+               : Either<TLeft, TResult>.Neither;
       }
 
       public Either<TResult, TRight> MapLeft<TResult>(Func<TLeft, TResult> map)
       {
-         if (map is null)
-         {
-            throw new ArgumentNullException(nameof(map));
-         }
+         ValidateFunction(map);
 
          return IsLeft
             ? map(_left)
             : IsRight
                ? Either<TResult, TRight>.FromRight(_right)
-               : Either<TResult, TRight>.FromBottom();
+               : Either<TResult, TRight>.Neither;
       }
 
       public async Task<Either<TLeft, TResult>> MapAsync<TResult>(Func<TRight, Task<TResult>> mapAsync)
       {
-         if (mapAsync is null)
-         {
-            throw new ArgumentNullException(nameof(mapAsync));
-         }
+         ValidateFunction(mapAsync);
 
          return IsRight
             ? await mapAsync(_right)
             : IsLeft
                ? Either<TLeft, TResult>.FromLeft(_left)
-               : Either<TLeft, TResult>.FromBottom();
+               : Either<TLeft, TResult>.Neither;
       }
 
       public Either<TLeft, TResult> Bind<TResult>(Func<TRight, Either<TLeft, TResult>> bind)
       {
-         if (bind is null)
-         {
-            throw new ArgumentNullException(nameof(bind));
-         }
+         ValidateFunction(bind);
 
          return IsRight
             ? bind(_right)
             : IsLeft
                ? Either<TLeft, TResult>.FromLeft(_left)
-               : Either<TLeft, TResult>.FromBottom();
+               : Either<TLeft, TResult>.Neither;
       }
 
       public async Task<Either<TLeft, TResult>> BindAsync<TResult>(Func<TRight, Task<Either<TLeft, TResult>>> bindAsync)
       {
-         if (bindAsync is null)
-         {
-            throw new ArgumentNullException(nameof(bindAsync));
-         }
+         ValidateFunction(bindAsync);
 
          return IsRight
             ? await bindAsync(_right)
             : IsLeft
                ? Either<TLeft, TResult>.FromLeft(_left)
-               : Either<TLeft, TResult>.FromBottom();
+               : Either<TLeft, TResult>.Neither;
       }
 
       public Unit DoRight(Action<TRight> right)
       {
-         if (right is null)
-         {
-            throw new ArgumentNullException(nameof(right));
-         }
+         ValidateAction(right);
 
          if (IsRight)
          {
@@ -260,10 +273,7 @@ namespace Monads
 
       public async Task<Unit> DoRightAsync(Func<TRight, Task> rightAsync)
       {
-         if (rightAsync is null)
-         {
-            throw new ArgumentNullException(nameof(rightAsync));
-         }
+         ValidateFunction(rightAsync);
 
          if (IsRight)
          {
@@ -273,31 +283,49 @@ namespace Monads
          return Unit.Default;
       }
 
-      public Unit DoLeft(Action<TLeft> left)
+      public Unit DoLeftOrNeither(Action leftOrNeither)
       {
-         if (left is null)
+         ValidateAction(leftOrNeither);
+
+         if (!IsRight)
          {
-            throw new ArgumentNullException(nameof(left));
+            leftOrNeither();
          }
+
+         return Unit.Default;
+      }
+
+      public Unit DoLeftOrNeither(Action<TLeft> left, Action neither)
+      {
+         ValidateAction(left);
+         ValidateAction(neither);
 
          if (IsLeft)
          {
             left(_left);
          }
 
+         if (IsNeither)
+         {
+            neither();
+         }
+
          return Unit.Default;
       }
 
-      public async Task<Unit> DoLeftAsync(Func<TLeft, Task> leftAsync)
+      public async Task<Unit> DoLeftOrNeitherAsync(Func<TLeft, Task> leftAsync, Action neither)
       {
-         if (leftAsync is null)
-         {
-            throw new ArgumentNullException(nameof(leftAsync));
-         }
+         ValidateFunction(leftAsync);
+         ValidateAction(neither);
 
          if (IsLeft)
          {
             await leftAsync(_left);
+         }
+
+         if (IsNeither)
+         {
+            neither();
          }
 
          return Unit.Default;
@@ -315,7 +343,7 @@ namespace Monads
          return Match(
             left: left => left,
             right: right => map(right),
-            bottom: () => Either<TLeft, TResult>.FromBottom());
+            neither: Either<TLeft, TResult>.Neither);
       }
 
       public Either<TLeft, TResult> SelectMany<TIntermediate, TResult>(Func<TRight, Either<TLeft, TIntermediate>> bind, Func<TRight, TIntermediate, TResult> project)
@@ -327,13 +355,15 @@ namespace Monads
       {
          if (!IsRight)
          {
-            return FromBottom();
+            return Neither;
          }
 
          return predicate(_right)
             ? this
-            : FromBottom();
+            : Neither;
       }
+
+      public static Either<TLeft, TRight> Neither => new Either<TLeft, TRight>();
 
       public static implicit operator Either<TLeft, TRight>(TLeft left) => FromLeft(left);
 

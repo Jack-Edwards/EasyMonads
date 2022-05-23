@@ -7,41 +7,45 @@ namespace Monads.Test
    public class Either_Tests
    {
       [Test]
-      public void Default_Constructor_Returns_Bottom()
+      public void Default_Constructor_Returns_Neither()
       {
          var sut = new Either<Unit, string>();
 
-         sut.DoLeft(_ => Assert.Fail());
+         sut.DoLeftOrNeither(
+            _ => Assert.Fail(),
+            () => Assert.IsTrue(true));
          sut.DoRight(_ => Assert.Fail());
 
-         bool isBottom = sut.Match(
+         bool isNeither = sut.Match(
             left: _ => false,
             right: _ => false,
-            bottom: () => true);
+            neither: true);
 
-         Assert.IsTrue(isBottom);
+         Assert.IsTrue(isNeither);
 
-         Assert.IsTrue(sut.IsBottom);
+         Assert.IsTrue(sut.IsNeither);
          Assert.IsFalse(sut.IsRight);
          Assert.IsFalse(sut.IsLeft);
       }
 
       [Test]
-      public void FromBottom_Works()
+      public void StaticNeither_Works()
       {
-         var sut = Either<Unit, string>.FromBottom();
+         var sut = Either<Unit, string>.Neither;
 
-         sut.DoLeft(_ => Assert.Fail());
+         sut.DoLeftOrNeither(
+            _ => Assert.Fail(),
+            () => Assert.True(true));
          sut.DoRight(_ => Assert.Fail());
 
-         bool isBottom = sut.Match(
+         bool isNeither = sut.Match(
             left: _ => false,
             right: _ => false,
-            bottom: () => true);
+            neither: true);
 
-         Assert.IsTrue(isBottom);
+         Assert.IsTrue(isNeither);
 
-         Assert.IsTrue(sut.IsBottom);
+         Assert.IsTrue(sut.IsNeither);
          Assert.IsFalse(sut.IsRight);
          Assert.IsFalse(sut.IsLeft);
       }
@@ -53,7 +57,7 @@ namespace Monads.Test
          bool doRightInvoked = false;
 
          var sut = Either<Unit, string>.FromRight(value);
-         sut.DoLeft(_ => Assert.Fail());
+         sut.DoLeftOrNeither(() => Assert.Fail());
          sut.DoRight(right =>
          {
             doRightInvoked = true;
@@ -64,27 +68,30 @@ namespace Monads.Test
 
          Assert.IsTrue(sut.IsRight);
          Assert.IsFalse(sut.IsLeft);
-         Assert.IsFalse(sut.IsBottom);
+         Assert.IsFalse(sut.IsNeither);
 
          Assert.AreEqual(value, sut.RightOrDefault("bar"));
          Assert.AreEqual(Unit.Default, sut.LeftOrDefault(Unit.Default));
       }
 
       [Test]
-      public void FromRight_Returns_Bottom_If_Null_Provided()
+      public void FromRight_Returns_Neither_If_Null_Provided()
       {
          var sut = Either<Unit, string>.FromRight(null);
-         sut.DoLeft(_ => Assert.Fail());
+         sut.DoLeftOrNeither(
+            _ => Assert.Fail(),
+            () => Assert.IsTrue(true));
+
          sut.DoRight(_ => Assert.Fail());
 
-         bool isBottom = sut.Match(
+         bool isNeither = sut.Match(
             left: _ => false,
             right: _ => false,
-            bottom: () => true);
+            neither: true);
 
-         Assert.IsTrue(isBottom);
+         Assert.IsTrue(isNeither);
 
-         Assert.IsTrue(sut.IsBottom);
+         Assert.IsTrue(sut.IsNeither);
          Assert.IsFalse(sut.IsRight);
          Assert.IsFalse(sut.IsLeft);
 
@@ -99,38 +106,42 @@ namespace Monads.Test
          bool doLeftInvoked = false;
 
          var sut = Either<int, Unit>.FromLeft(value);
-         sut.DoLeft(left =>
+         sut.DoLeftOrNeither(left =>
          {
             doLeftInvoked = true;
             Assert.AreEqual(value, left);
-         });
+         },
+         () => Assert.Fail());
+
          sut.DoRight(_ => Assert.Fail());
 
          Assert.IsTrue(doLeftInvoked);
 
          Assert.IsTrue(sut.IsLeft);
          Assert.IsFalse(sut.IsRight);
-         Assert.IsFalse(sut.IsBottom);
+         Assert.IsFalse(sut.IsNeither);
 
          Assert.AreEqual(5, sut.LeftOrDefault(123));
          Assert.AreEqual(Unit.Default, sut.RightOrDefault(Unit.Default));
       }
 
       [Test]
-      public void FromLeft_Returns_Bottom_If_Null_Provided()
+      public void FromLeft_Returns_Neither_If_Null_Provided()
       {
          var sut = Either<object, Unit>.FromLeft(null);
-         sut.DoLeft(_ => Assert.Fail());
+         sut.DoLeftOrNeither(
+            _ => Assert.Fail(),
+            () => Assert.IsTrue(true));
          sut.DoRight(_ => Assert.Fail());
 
-         bool isBottom = sut.Match(
+         bool isNeither = sut.Match(
             left: _ => false,
             right: _ => false,
-            bottom: () => true);
+            neither: true);
 
-         Assert.IsTrue(isBottom);
+         Assert.IsTrue(isNeither);
 
-         Assert.IsTrue(sut.IsBottom);
+         Assert.IsTrue(sut.IsNeither);
          Assert.IsFalse(sut.IsRight);
          Assert.IsFalse(sut.IsLeft);
 
@@ -149,7 +160,7 @@ namespace Monads.Test
          var sut = await eitherTask;
 
          bool doRightInvoked = false;
-         sut.DoLeft(_ => Assert.Fail());
+         sut.DoLeftOrNeither(() => Assert.Fail());
          sut.DoRight(right =>
          {
             doRightInvoked = true;
@@ -160,14 +171,14 @@ namespace Monads.Test
 
          Assert.IsTrue(sut.IsRight);
          Assert.IsFalse(sut.IsLeft);
-         Assert.IsFalse(sut.IsBottom);
+         Assert.IsFalse(sut.IsNeither);
 
          Assert.AreEqual(value, sut.RightOrDefault("bar"));
          Assert.AreEqual(Unit.Default, sut.LeftOrDefault(Unit.Default));
       }
 
       [Test]
-      public async Task FromRightAsync_Bottoms_If_Null()
+      public async Task FromRightAsync_Neithers_If_Null()
       {
          string value = null;
          Task<string> task = Task.FromResult(value);
@@ -175,17 +186,20 @@ namespace Monads.Test
          var eitherTask = Either<Unit, string>.FromRightAsync(task);
          var sut = await eitherTask;
 
-         sut.DoLeft(_ => Assert.Fail());
+         sut.DoLeftOrNeither(
+            _ => Assert.Fail(),
+            () => Assert.IsTrue(true));
+
          sut.DoRight(_ => Assert.Fail());
 
-         bool isBottom = sut.Match(
+         bool isNeither = sut.Match(
            left: _ => false,
            right: _ => false,
-           bottom: () => true);
+           neither: true);
 
-         Assert.IsTrue(isBottom);
+         Assert.IsTrue(isNeither);
 
-         Assert.IsTrue(sut.IsBottom);
+         Assert.IsTrue(sut.IsNeither);
          Assert.IsFalse(sut.IsRight);
          Assert.IsFalse(sut.IsLeft);
       }
@@ -200,18 +214,20 @@ namespace Monads.Test
          var sut = await eitherTask;
 
          bool doLeftInvoked = true;
-         sut.DoLeft(left =>
+         sut.DoLeftOrNeither(left =>
          {
             doLeftInvoked = true;
             Assert.AreEqual(3, left);
-         });
+         },
+         () => Assert.Fail());
+
          sut.DoRight(_ => Assert.Fail());
 
          Assert.IsTrue(doLeftInvoked);
 
          Assert.IsTrue(sut.IsLeft);
          Assert.IsFalse(sut.IsRight);
-         Assert.IsFalse(sut.IsBottom);
+         Assert.IsFalse(sut.IsNeither);
 
          Assert.AreEqual(3, sut.LeftOrDefault(123));
          Assert.AreEqual("three", sut.RightOrDefault("three"));
@@ -224,7 +240,7 @@ namespace Monads.Test
          string leftSut = await leftEither.MatchAsync(
             async left => await Task.FromResult("left"),
             right => "right",
-            () => "bottom");
+            "neither");
 
          Assert.AreEqual("left", leftSut);
 
@@ -232,17 +248,17 @@ namespace Monads.Test
          string rightSut = await rightEither.MatchAsync(
             async left => await Task.FromResult("left"),
             right => "right",
-            () => "bottom");
+            "neither");
 
          Assert.AreEqual("right", rightSut);
 
-         var bottomEither = Either<int, string>.FromBottom();
-         string bottomSut = await bottomEither.MatchAsync(
+         var neitherEither = Either<int, string>.Neither;
+         string neitherSut = await neitherEither.MatchAsync(
             async left => await Task.FromResult("left"),
             right => "right",
-            () => "bottom");
+            "neither");
 
-         Assert.AreEqual("bottom", bottomSut);
+         Assert.AreEqual("neither", neitherSut);
       }
 
       [Test]
@@ -252,7 +268,7 @@ namespace Monads.Test
          string leftSut = await leftEither.MatchAsync(
             left => "left",
             async right => await Task.FromResult("right"),
-            () => "bottom");
+            "neither");
 
          Assert.AreEqual("left", leftSut);
 
@@ -260,17 +276,17 @@ namespace Monads.Test
          string rightSut = await rightEither.MatchAsync(
             left => "left",
             async right => await Task.FromResult("right"),
-            () => "bottom");
+            "neither");
 
          Assert.AreEqual("right", rightSut);
 
-         var bottomEither = Either<int, string>.FromBottom();
-         string bottomSut = await bottomEither.MatchAsync(
+         var neitherEither = Either<int, string>.Neither;
+         string neitherSut = await neitherEither.MatchAsync(
             left => "left",
             async right => await Task.FromResult("right"),
-            () => "bottom");
+            "neither");
 
-         Assert.AreEqual("bottom", bottomSut);
+         Assert.AreEqual("neither", neitherSut);
       }
 
       [Test]
@@ -280,7 +296,7 @@ namespace Monads.Test
          string leftSut = await leftEither.MatchAsync(
             async left => await Task.FromResult("left"),
             async right => await Task.FromResult("right"),
-            () => "bottom");
+            "neither");
 
          Assert.AreEqual("left", leftSut);
 
@@ -288,17 +304,17 @@ namespace Monads.Test
          string rightSut = await rightEither.MatchAsync(
             async left => await Task.FromResult("left"),
             async right => await Task.FromResult("right"),
-            () => "bottom");
+            "neither");
 
          Assert.AreEqual("right", rightSut);
 
-         var bottomEither = Either<int, string>.FromBottom();
-         string bottomSut = await bottomEither.MatchAsync(
+         var neitherEither = Either<int, string>.Neither;
+         string neitherSut = await neitherEither.MatchAsync(
             async left => await Task.FromResult("left"),
             async right => await Task.FromResult("right"),
-            () => "bottom");
+            "neither");
 
-         Assert.AreEqual("bottom", bottomSut);
+         Assert.AreEqual("neither", neitherSut);
       }
 
       [Test]
@@ -320,16 +336,18 @@ namespace Monads.Test
 
          var eitherLeft = sut.Select(x => x == 5);
          Assert.IsTrue(eitherLeft.IsLeft);
-         eitherLeft.DoLeft(x => Assert.AreEqual(value, x));
+         eitherLeft.DoLeftOrNeither(
+            left => Assert.AreEqual(value, left),
+            () => Assert.Fail());
       }
 
       [Test]
-      public void Select_Works_For_Bottom_Either()
+      public void Select_Works_For_Neither_Either()
       {
-         var sut = Either<Unit, string>.FromBottom();
+         var sut = Either<Unit, string>.Neither;
 
-         var eitherBottom = sut.Select(x => x == "foo");
-         Assert.IsTrue(eitherBottom.IsBottom);
+         var eitherNeither = sut.Select(x => x == "foo");
+         Assert.IsTrue(eitherNeither.IsNeither);
       }
 
       [Test]
@@ -342,8 +360,8 @@ namespace Monads.Test
          Assert.IsTrue(eitherRight.IsRight);
          eitherRight.DoRight(x => Assert.AreEqual(value, x));
 
-         var eitherBottom = sut.Where(x => x == "foo");
-         Assert.IsTrue(eitherBottom.IsBottom);
+         var eitherNeither = sut.Where(x => x == "foo");
+         Assert.IsTrue(eitherNeither.IsNeither);
       }
 
       [Test]
@@ -352,17 +370,17 @@ namespace Monads.Test
          string value = "test";
          Either<string, int> sut = value;
 
-         var eitherBottom = sut.Where(x => x == 3);
-         Assert.IsTrue(eitherBottom.IsBottom);
+         var eitherNeither = sut.Where(x => x == 3);
+         Assert.IsTrue(eitherNeither.IsNeither);
       }
 
       [Test]
-      public void Where_Works_For_Bottom_Either()
+      public void Where_Works_For_Neither_Either()
       {
-         var sut = Either<int, string>.FromBottom();
+         var sut = Either<int, string>.Neither;
 
-         var eitherBottom = sut.Where(x => x == "test");
-         Assert.IsTrue(eitherBottom.IsBottom);
+         var eitherNeither = sut.Where(x => x == "test");
+         Assert.IsTrue(eitherNeither.IsNeither);
       }
 
       [Test]
@@ -374,11 +392,11 @@ namespace Monads.Test
       }
 
       [Test]
-      public void Implicit_Right_Operator_Bottoms_If_Null()
+      public void Implicit_Right_Operator_Neithers_If_Null()
       {
          string value = null;
          Either<Unit, string> sut = value;
-         Assert.IsTrue(sut.IsBottom);
+         Assert.IsTrue(sut.IsNeither);
       }
 
       [Test]
@@ -390,11 +408,11 @@ namespace Monads.Test
       }
 
       [Test]
-      public void Implicit_Left_Operator_Bottoms_If_Null()
+      public void Implicit_Left_Operator_Neithers_If_Null()
       {
          string value = null;
          Either<string, Unit> sut = value;
-         Assert.IsTrue(sut.IsBottom);
+         Assert.IsTrue(sut.IsNeither);
       }
    }
 }

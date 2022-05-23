@@ -2,7 +2,7 @@
 {
    public enum EitherState
    {
-      Bottom,
+      Neither,
       Left,
       Right
    }
