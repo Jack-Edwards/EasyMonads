@@ -56,6 +56,7 @@ double daysDouble = daysSinceLastAccident.Match(
 ### Either\<TLeft, TRight>
 
 A choice monad with left (bad) and right (good) states/values.
+There is also a neither (empty) state which does not contain any value, sort of like an implicit `Option<Either<TLeft, TRight>>`.
 
 A great example of when to use this is when deserializing a response from a web API.
 Consider an API that may either return some good data with a 200 response or a standard error message with a 4xx or 5xx response.
@@ -78,15 +79,17 @@ else
 
 .....
 
-eitherApiResponse.IfRight(dto =>
+eitherApiResponse.DoRight(dto =>
 {
    // Do something with the dto data
 });
 
-eitherApiResponse.IfLeft(errorCode =>
-{
-   Console.WriteLine($"An error occurred getting data from the API: {errorCode}");
-})
+eitherApiResponse.DoLeftOrNeither(
+   left: errorCode =>
+   {
+      Console.WriteLine($"The API responded with an error code: {errorCode}");
+   },
+   neither: () => Console.WriteLine($"The API did not respond"))
 
 bool wasTheRequestSuccessful = eitherApiResponse.IsRight;
 
