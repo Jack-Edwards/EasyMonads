@@ -43,6 +43,13 @@ namespace Monads
             value => Either<TLeft, TValue>.FromRight(value));
       }
 
+      public static Task<Either<TValue, TRight>> ToLeftEitherAsync<TValue, TRight>(this Task<Maybe<TValue>> maybe, TRight right)
+      {
+         return maybe.MatchAsync(
+            () => right,
+            value => Either<TValue, TRight>.FromLeft(value));
+      }
+
       public static async Task<Maybe<TResult>> Select<TValue, TResult>(this Task<Maybe<TValue>> maybe, Func<TValue, TResult> map)
       {
          return await maybe.MatchAsync(
