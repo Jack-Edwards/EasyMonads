@@ -59,7 +59,7 @@ namespace Monads
                        Either<TLeft, TResult>.Neither));
       }
 
-      public static Task<Maybe<TRight>> ToOptionTask<TLeft, TRight>(this Task<Either<TLeft, TRight>> either)
+      public static Task<Maybe<TRight>> ToMaybeTask<TLeft, TRight>(this Task<Either<TLeft, TRight>> either)
       {
          return either.MatchAsync(
             left => Maybe<TRight>.None,
