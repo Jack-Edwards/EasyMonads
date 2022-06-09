@@ -141,6 +141,23 @@ namespace Monads
             : await noneAsync();
       }
 
+      public async Task<TResult> MatchAsync<TResult>(Func<Task<TResult>> noneAsync, Func<TValue, Task<TResult>> someAsync)
+      {
+         if (noneAsync is null)
+         {
+            throw new ArgumentNullException(nameof(noneAsync));
+         }
+
+         if (someAsync is null)
+         {
+            throw new ArgumentNullException(nameof(someAsync));
+         }
+
+         return IsSome
+            ? await someAsync(_value)
+            : await noneAsync();
+      }
+
       public Maybe<TResult> Map<TResult>(Func<TValue, TResult> map)
       {
          if (map is null)
