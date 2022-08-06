@@ -29,11 +29,11 @@ namespace Monads
          return await maybeResult.IfSomeAsync(someAsync);
       }
 
-      public static Task<Maybe<TResult>> BindAsync<TValue, TResult>(this Task<Maybe<TValue>> maybe, Func<TValue, Task<Maybe<TResult>>> bindAsync)
+      public static Task<Maybe<TResult>> BindAsync<TValue, TResult>(this Task<Maybe<TValue>> maybe, Func<TValue, TResult> bind)
       {
          return maybe.MatchAsync(
             () => Maybe<TResult>.None,
-            value => bindAsync(value));
+            value => bind(value));
       }
 
       public static Task<Either<TLeft, TValue>> ToEitherAsync<TLeft, TValue>(this Task<Maybe<TValue>> maybe, TLeft left)

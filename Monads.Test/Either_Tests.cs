@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Monads.Test
 {
    [TestFixture]
-   public class Either_Tests
+   internal class Either_Tests
    {
       [Test]
       public void Default_Constructor_Returns_Neither()
