@@ -1,4 +1,4 @@
-﻿namespace Monads
+﻿namespace EasyMonads
 {
    public enum EitherState
    {

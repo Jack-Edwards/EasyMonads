@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Threading.Tasks;
 
-namespace Monads.Test
+namespace EasyMonads.Test
 {
    [TestFixture]
    internal class MaybeAsyncExtensions_Tests

@@ -1,4 +1,4 @@
-﻿namespace Monads
+﻿namespace EasyMonads
 {
    internal enum MaybeState
    {

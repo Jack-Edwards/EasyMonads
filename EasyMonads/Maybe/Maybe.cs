@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Monads
+namespace EasyMonads
 {
    public readonly struct Maybe<TValue>
    {
