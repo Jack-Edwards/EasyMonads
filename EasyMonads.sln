@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32505.173
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monads", "Monads\Monads.csproj", "{384E97DC-0175-40A9-8A58-C21416983124}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyMonads", "EasyMonads\EasyMonads.csproj", "{384E97DC-0175-40A9-8A58-C21416983124}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Monads.Test", "Monads.Test\Monads.Test.csproj", "{9A0BF1C3-C077-4D33-BD1A-7D119AD2217D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyMonads.Test", "EasyMonads.Test\EasyMonads.Test.csproj", "{9A0BF1C3-C077-4D33-BD1A-7D119AD2217D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{777FB2FD-6BA3-40A7-8989-BE331C73C275}"
 	ProjectSection(SolutionItems) = preProject
