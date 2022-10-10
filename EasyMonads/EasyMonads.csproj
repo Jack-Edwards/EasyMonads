@@ -1,18 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <Nullable>disable</Nullable>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>EasyMonads</Title>
-    <Authors>Jack Edwards</Authors>
-    <Description>Maybe&lt;T&gt; and Either&lt;TL, TR&gt; monads</Description>
-    <PackageProjectUrl></PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Jack-Edwards/EasyMonads</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <IncludeSymbols>True</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
+   <PropertyGroup>
+      <TargetFramework>netstandard2.1</TargetFramework>
+      <Nullable>disable</Nullable>
+      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+      <Title>EasyMonads</Title>
+      <Authors>Jack Edwards</Authors>
+      <Description>Maybe&lt;T&gt; and Either&lt;TL, TR&gt; monads</Description>
+      <PackageProjectUrl></PackageProjectUrl>
+      <RepositoryUrl>https://github.com/Jack-Edwards/EasyMonads</RepositoryUrl>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+      <IncludeSymbols>True</IncludeSymbols>
+      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+      <Version>1.2.0</Version>
+   </PropertyGroup>
 
 </Project>
