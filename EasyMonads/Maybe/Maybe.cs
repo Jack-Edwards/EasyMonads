@@ -23,13 +23,13 @@ namespace EasyMonads
 
       public static Task<Maybe<TValue>> FromAsync(Task<TValue> value)
       {
-         async Task<Maybe<TValue>> unpack()
+         async Task<Maybe<TValue>> Unpack()
          {
             var result = await value;
             return From(result);
          }
 
-         return unpack();
+         return Unpack();
       }
 
       public bool IsSome
@@ -38,7 +38,7 @@ namespace EasyMonads
       public bool IsNone
       { get { return _state == MaybeState.None; } }
 
-      public Unit IfSome(Action<TValue> some)
+      public Maybe<TValue> IfSome(Action<TValue> some)
       {
          if (some is null)
          {
@@ -50,10 +50,10 @@ namespace EasyMonads
             some(_value);
          }
 
-         return default;
+         return this;
       }
 
-      public async Task<Unit> IfSomeAsync(Func<TValue, Task> someAsync)
+      public async Task<Maybe<TValue>> IfSomeAsync(Func<TValue, Task> someAsync)
       {
          if (someAsync is null)
          {
@@ -65,10 +65,10 @@ namespace EasyMonads
             await someAsync(_value);
          }
 
-         return default;
+         return this;
       }
 
-      public Unit IfNone(Action none)
+      public Maybe<TValue> IfNone(Action none)
       {
          if (none is null)
          {
@@ -80,7 +80,7 @@ namespace EasyMonads
             none();
          }
 
-         return default;
+         return this;
       }
 
       public TValue SomeOrDefault(TValue defaultValue)
@@ -241,14 +241,14 @@ namespace EasyMonads
             return default;
          }
 
-         var bound = bind(_value);
+         Maybe<TIntermediate> bound = bind(_value);
 
          if (bound.IsNone)
          {
             return default;
          }
 
-         var result = project(_value, bound._value);
+         TResult result = project(_value, bound._value);
 
          if (result is null)
          {
@@ -266,6 +266,6 @@ namespace EasyMonads
       }
 
       public static readonly Maybe<TValue> None = default;
-      public static implicit operator Maybe<TValue>(TValue value) => Maybe<TValue>.From(value);
+      public static implicit operator Maybe<TValue>(TValue value) => From(value);
    }
 }

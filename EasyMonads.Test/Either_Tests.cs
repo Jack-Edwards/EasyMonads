@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 namespace EasyMonads.Test
 {
    [TestFixture]
-   internal class Either_Tests
+   internal class EitherTests
    {
       [Test]
       public void Default_Constructor_Returns_Neither()
       {
-         var sut = new Either<Unit, string>();
+         Either<Unit, string> sut = new Either<Unit, string>();
 
          sut.DoLeftOrNeither(
             _ => Assert.Fail(),
@@ -31,7 +31,7 @@ namespace EasyMonads.Test
       [Test]
       public void StaticNeither_Works()
       {
-         var sut = Either<Unit, string>.Neither;
+         Either<Unit, string> sut = Either<Unit, string>.Neither;
 
          sut.DoLeftOrNeither(
             _ => Assert.Fail(),
@@ -56,8 +56,8 @@ namespace EasyMonads.Test
          string value = "test";
          bool doRightInvoked = false;
 
-         var sut = Either<Unit, string>.FromRight(value);
-         sut.DoLeftOrNeither(() => Assert.Fail());
+         Either<Unit, string> sut = Either<Unit, string>.FromRight(value);
+         sut.DoLeftOrNeither(Assert.Fail);
          sut.DoRight(right =>
          {
             doRightInvoked = true;
@@ -77,7 +77,7 @@ namespace EasyMonads.Test
       [Test]
       public void FromRight_Returns_Neither_If_Null_Provided()
       {
-         var sut = Either<Unit, string>.FromRight(null);
+         Either<Unit, string> sut = Either<Unit, string>.FromRight(null);
          sut.DoLeftOrNeither(
             _ => Assert.Fail(),
             () => Assert.IsTrue(true));
@@ -105,13 +105,13 @@ namespace EasyMonads.Test
          int value = 5;
          bool doLeftInvoked = false;
 
-         var sut = Either<int, Unit>.FromLeft(value);
+         Either<int, Unit> sut = Either<int, Unit>.FromLeft(value);
          sut.DoLeftOrNeither(left =>
          {
             doLeftInvoked = true;
             Assert.AreEqual(value, left);
          },
-         () => Assert.Fail());
+         Assert.Fail);
 
          sut.DoRight(_ => Assert.Fail());
 
@@ -128,7 +128,7 @@ namespace EasyMonads.Test
       [Test]
       public void FromLeft_Returns_Neither_If_Null_Provided()
       {
-         var sut = Either<object, Unit>.FromLeft(null);
+         Either<object, Unit> sut = Either<object, Unit>.FromLeft(null);
          sut.DoLeftOrNeither(
             _ => Assert.Fail(),
             () => Assert.IsTrue(true));
@@ -156,11 +156,11 @@ namespace EasyMonads.Test
          string value = "test";
          Task<string> task = Task.FromResult(value);
 
-         var eitherTask = Either<Unit, string>.FromRightAsync(task);
-         var sut = await eitherTask;
+         Task<Either<Unit, string>> eitherTask = Either<Unit, string>.FromRightAsync(task);
+         Either<Unit, string> sut = await eitherTask;
 
          bool doRightInvoked = false;
-         sut.DoLeftOrNeither(() => Assert.Fail());
+         sut.DoLeftOrNeither(Assert.Fail);
          sut.DoRight(right =>
          {
             doRightInvoked = true;
@@ -180,11 +180,10 @@ namespace EasyMonads.Test
       [Test]
       public async Task FromRightAsync_Neithers_If_Null()
       {
-         string value = null;
-         Task<string> task = Task.FromResult(value);
+         Task<string> task = Task.FromResult((string)null);
 
-         var eitherTask = Either<Unit, string>.FromRightAsync(task);
-         var sut = await eitherTask;
+         Task<Either<Unit, string>> eitherTask = Either<Unit, string>.FromRightAsync(task);
+         Either<Unit, string> sut = await eitherTask;
 
          sut.DoLeftOrNeither(
             _ => Assert.Fail(),
@@ -207,11 +206,10 @@ namespace EasyMonads.Test
       [Test]
       public async Task FromRightAsync_Works_With_Default_Left()
       {
-         string value = null;
-         Task<string> task = Task.FromResult(value);
+         Task<string> task = Task.FromResult((string)null);
 
-         var eitherTask = Either<int, string>.FromRightAsync(task, 3);
-         var sut = await eitherTask;
+         Task<Either<int, string>> eitherTask = Either<int, string>.FromRightAsync(task, 3);
+         Either<int, string> sut = await eitherTask;
 
          bool doLeftInvoked = true;
          sut.DoLeftOrNeither(left =>
@@ -219,7 +217,7 @@ namespace EasyMonads.Test
             doLeftInvoked = true;
             Assert.AreEqual(3, left);
          },
-         () => Assert.Fail());
+         Assert.Fail);
 
          sut.DoRight(_ => Assert.Fail());
 
@@ -236,26 +234,26 @@ namespace EasyMonads.Test
       [Test]
       public async Task MatchAsync_Works_For_Left_Async()
       {
-         var leftEither = Either<int, string>.FromLeft(4);
+         Either<int, string> leftEither = Either<int, string>.FromLeft(4);
          string leftSut = await leftEither.MatchAsync(
-            async left => await Task.FromResult("left"),
-            right => "right",
+            async _ => await Task.FromResult("left"),
+            _ => "right",
             "neither");
 
          Assert.AreEqual("left", leftSut);
 
-         var rightEither = Either<int, string>.FromRight("foo");
+         Either<int, string> rightEither = Either<int, string>.FromRight("foo");
          string rightSut = await rightEither.MatchAsync(
-            async left => await Task.FromResult("left"),
-            right => "right",
+            async _ => await Task.FromResult("left"),
+            _ => "right",
             "neither");
 
          Assert.AreEqual("right", rightSut);
 
-         var neitherEither = Either<int, string>.Neither;
+         Either<int, string> neitherEither = Either<int, string>.Neither;
          string neitherSut = await neitherEither.MatchAsync(
-            async left => await Task.FromResult("left"),
-            right => "right",
+            async _ => await Task.FromResult("left"),
+            _ => "right",
             "neither");
 
          Assert.AreEqual("neither", neitherSut);
@@ -264,26 +262,26 @@ namespace EasyMonads.Test
       [Test]
       public async Task MatchAsync_Works_For_Right_Async()
       {
-         var leftEither = Either<int, string>.FromLeft(4);
+         Either<int, string> leftEither = Either<int, string>.FromLeft(4);
          string leftSut = await leftEither.MatchAsync(
-            left => "left",
-            async right => await Task.FromResult("right"),
+            _ => "left",
+            async _ => await Task.FromResult("right"),
             "neither");
 
          Assert.AreEqual("left", leftSut);
 
-         var rightEither = Either<int, string>.FromRight("foo");
+         Either<int, string> rightEither = Either<int, string>.FromRight("foo");
          string rightSut = await rightEither.MatchAsync(
-            left => "left",
-            async right => await Task.FromResult("right"),
+            _ => "left",
+            async _ => await Task.FromResult("right"),
             "neither");
 
          Assert.AreEqual("right", rightSut);
 
-         var neitherEither = Either<int, string>.Neither;
+         Either<int, string> neitherEither = Either<int, string>.Neither;
          string neitherSut = await neitherEither.MatchAsync(
-            left => "left",
-            async right => await Task.FromResult("right"),
+            _ => "left",
+            async _ => await Task.FromResult("right"),
             "neither");
 
          Assert.AreEqual("neither", neitherSut);
@@ -292,26 +290,26 @@ namespace EasyMonads.Test
       [Test]
       public async Task MatchAsync_Works_For_Left_And_Right_Async()
       {
-         var leftEither = Either<int, string>.FromLeft(4);
+         Either<int, string> leftEither = Either<int, string>.FromLeft(4);
          string leftSut = await leftEither.MatchAsync(
-            async left => await Task.FromResult("left"),
-            async right => await Task.FromResult("right"),
+            async _ => await Task.FromResult("left"),
+            async _ => await Task.FromResult("right"),
             "neither");
 
          Assert.AreEqual("left", leftSut);
 
-         var rightEither = Either<int, string>.FromRight("foo");
+         Either<int, string> rightEither = Either<int, string>.FromRight("foo");
          string rightSut = await rightEither.MatchAsync(
-            async left => await Task.FromResult("left"),
-            async right => await Task.FromResult("right"),
+            async _ => await Task.FromResult("left"),
+            async _ => await Task.FromResult("right"),
             "neither");
 
          Assert.AreEqual("right", rightSut);
 
-         var neitherEither = Either<int, string>.Neither;
+         Either<int, string> neitherEither = Either<int, string>.Neither;
          string neitherSut = await neitherEither.MatchAsync(
-            async left => await Task.FromResult("left"),
-            async right => await Task.FromResult("right"),
+            async _ => await Task.FromResult("left"),
+            async _ => await Task.FromResult("right"),
             "neither");
 
          Assert.AreEqual("neither", neitherSut);
@@ -320,10 +318,10 @@ namespace EasyMonads.Test
       [Test]
       public void Select_Works_For_Right_Either()
       {
-         string value = "test";
+         const string value = "test";
          Either<Unit, string> sut = value;
 
-         var eitherRightUppercase = sut.Select(x => x.ToUpper());
+         Either<Unit, string> eitherRightUppercase = sut.Select(x => x.ToUpper());
          Assert.IsTrue(eitherRightUppercase.IsRight);
          eitherRightUppercase.DoRight(x => Assert.AreEqual(value.ToUpper(), x));
       }
@@ -331,62 +329,62 @@ namespace EasyMonads.Test
       [Test]
       public void Select_Works_For_Left_Either()
       {
-         string value = "test";
+         const string value = "test";
          Either<string, int> sut = value;
 
-         var eitherLeft = sut.Select(x => x == 5);
+         Either<string, bool> eitherLeft = sut.Select(x => x == 5);
          Assert.IsTrue(eitherLeft.IsLeft);
          eitherLeft.DoLeftOrNeither(
             left => Assert.AreEqual(value, left),
-            () => Assert.Fail());
+            Assert.Fail);
       }
 
       [Test]
       public void Select_Works_For_Neither_Either()
       {
-         var sut = Either<Unit, string>.Neither;
+         Either<Unit, string> sut = Either<Unit, string>.Neither;
 
-         var eitherNeither = sut.Select(x => x == "foo");
+         Either<Unit, bool> eitherNeither = sut.Select(x => x == "foo");
          Assert.IsTrue(eitherNeither.IsNeither);
       }
 
       [Test]
       public void Where_Works_For_Right_Either()
       {
-         string value = "test";
+         const string value = "test";
          Either<Unit, string> sut = value;
 
-         var eitherRight = sut.Where(x => x == value);
+         Either<Unit, string> eitherRight = sut.Where(x => x == value);
          Assert.IsTrue(eitherRight.IsRight);
          eitherRight.DoRight(x => Assert.AreEqual(value, x));
 
-         var eitherNeither = sut.Where(x => x == "foo");
+         Either<Unit, string> eitherNeither = sut.Where(x => x == "foo");
          Assert.IsTrue(eitherNeither.IsNeither);
       }
 
       [Test]
       public void Where_Works_For_Left_Either()
       {
-         string value = "test";
+         const string value = "test";
          Either<string, int> sut = value;
 
-         var eitherNeither = sut.Where(x => x == 3);
+         Either<string, int> eitherNeither = sut.Where(x => x == 3);
          Assert.IsTrue(eitherNeither.IsNeither);
       }
 
       [Test]
       public void Where_Works_For_Neither_Either()
       {
-         var sut = Either<int, string>.Neither;
+         Either<int, string> sut = Either<int, string>.Neither;
 
-         var eitherNeither = sut.Where(x => x == "test");
+         Either<int, string> eitherNeither = sut.Where(x => x == "test");
          Assert.IsTrue(eitherNeither.IsNeither);
       }
 
       [Test]
       public void Implicit_Right_Operator_Works()
       {
-         string value = "test";
+         const string value = "test";
          Either<Unit, string> sut = value;
          Assert.IsTrue(sut.IsRight);
       }
@@ -394,15 +392,14 @@ namespace EasyMonads.Test
       [Test]
       public void Implicit_Right_Operator_Neithers_If_Null()
       {
-         string value = null;
-         Either<Unit, string> sut = value;
+         Either<Unit, string> sut = null;
          Assert.IsTrue(sut.IsNeither);
       }
 
       [Test]
       public void Implicit_Left_Operator_Works()
       {
-         int value = 5;
+         const int value = 5;
          Either<int, Unit> sut = value;
          Assert.IsTrue(sut.IsLeft);
       }
@@ -410,8 +407,7 @@ namespace EasyMonads.Test
       [Test]
       public void Implicit_Left_Operator_Neithers_If_Null()
       {
-         string value = null;
-         Either<string, Unit> sut = value;
+         Either<string, Unit> sut = null;
          Assert.IsTrue(sut.IsNeither);
       }
    }

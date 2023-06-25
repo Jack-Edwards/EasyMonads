@@ -38,7 +38,7 @@ A simple wrapper around a value which may/not exist.
 A good alternative to nullable types.
 
 ```cs
-Maybe<int> daysSinceLastAccident = Maybe<int>.From(GetDaysSinceLastAccident());
+Maybe<int> daysSinceLastAccident = 10;
 
 daysSinceLastAccident.IfNone(
    () => Console.WriteLine($"An accident has never been reported!"));
@@ -56,7 +56,7 @@ double daysDouble = daysSinceLastAccident.Match(
 ### Either\<TLeft, TRight>
 
 A choice monad with left (bad) and right (good) states/values.
-There is also a neither (empty) state which does not contain any value, sort of like an implicit `Option<Either<TLeft, TRight>>`.
+There is also a neither (empty) state which does not contain any value, sort of like an implicit `Maybe<Either<TLeft, TRight>>`.
 
 A great example of when to use this is when deserializing a response from a web API.
 Consider an API that may either return some good data with a 200 response or a standard error message with a 4xx or 5xx response.
@@ -66,18 +66,10 @@ One option could be `object` or `dynamic`, but those become difficult to work wi
 A better option is deserializing to the correct data type, then storing the instance in an Either.
 
 ```cs
-if (httpStatus == 200)
-{
-   MyDTO data = JsonSerializer.Deserialize<MyDTO>(responseData);
-   return Either<int, MyDTO>.FromRight(data);
-}
-else
-{
-   int errorCode = JsonSerializer.Deserialize<int>(responseData)
-   return Either<int, MyDTO>.FromLeft(errorCode);
-}
 
-.....
+Either<int, MyDTO> apiResponse = httpStatus == 200
+   ? JsonSerializer.Deserialize<MyDTO>(responseData)
+   : JsonSerializer.Deserialize<int>(responseData);
 
 eitherApiResponse.DoRight(dto =>
 {

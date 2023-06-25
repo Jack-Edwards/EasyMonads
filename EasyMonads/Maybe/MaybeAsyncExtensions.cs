@@ -23,12 +23,25 @@ namespace EasyMonads
          return await maybeResult.MatchAsync(noneAsync, some);
       }
 
-      public static async Task<Unit> IfSomeAsync<TValue>(this Task<Maybe<TValue>> maybe, Func<TValue, Task> someAsync)
+      public static async Task<Maybe<TValue>> IfSomeAsync<TValue>(this Task<Maybe<TValue>> maybe, Action<TValue> some)
+      {
+         Maybe<TValue> maybeResult = await maybe;
+         return maybeResult.IfSome(some);
+      }
+      
+      public static async Task<Maybe<TValue>> IfSomeAsync<TValue>(this Task<Maybe<TValue>> maybe, Func<TValue, Task> someAsync)
       {
          Maybe<TValue> maybeResult = await maybe;
          return await maybeResult.IfSomeAsync(someAsync);
       }
 
+      public static Task<Maybe<TResult>> MapAsync<TValue, TResult>(this Task<Maybe<TValue>> maybe, Func<TValue, TResult> map)
+      {
+         return maybe.MatchAsync(
+            () => Maybe<TResult>.None,
+            value => map(value));
+      }
+      
       public static Task<Maybe<TResult>> BindAsync<TValue, TResult>(this Task<Maybe<TValue>> maybe, Func<TValue, TResult> bind)
       {
          return maybe.MatchAsync(
@@ -67,7 +80,7 @@ namespace EasyMonads
                   () => default,
                   intermediate =>
                   {
-                     var result = project(value, intermediate);
+                     TResult result = project(value, intermediate);
                      if (result is null)
                      {
                         throw new InvalidOperationException();
@@ -82,12 +95,9 @@ namespace EasyMonads
       {
          return await maybe.MatchAsync(
             () => Maybe<TValue>.None,
-            value =>
-            {
-               return predicate(value)
-                  ? value
-                  : Maybe<TValue>.None;
-            });
+            value => predicate(value)
+               ? value
+               : Maybe<TValue>.None);
       }
    }
 }

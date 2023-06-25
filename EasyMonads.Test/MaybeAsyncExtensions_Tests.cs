@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace EasyMonads.Test
 {
    [TestFixture]
-   internal class MaybeAsyncExtensions_Tests
+   internal class MaybeAsyncExtensionsTests
    {
       [Test]
       public async Task BindAsync_Matches_None()
@@ -24,7 +24,7 @@ namespace EasyMonads.Test
 
          Assert.IsTrue(unwrapped.IsSome);
          unwrapped.IfSome(x => Assert.AreEqual("5", x));
-         unwrapped.IfNone(() => Assert.Fail());
+         unwrapped.IfNone(Assert.Fail);
       }
    }
 }
