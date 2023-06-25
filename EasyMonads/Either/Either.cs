@@ -101,38 +101,32 @@ namespace EasyMonads
             ? _left
             : defaultValue;
       }
-
-      private static Unit ValidateAction(Action action)
+      
+      private static void ValidateAction(Action action)
       {
          if (action is null)
          {
             throw new ArgumentNullException(nameof(action));
          }
-
-         return Unit.Default;
       }
 
-      private static Unit ValidateAction<T>(Action<T> action)
+      private static void ValidateAction<T>(Action<T> action)
       {
          if (action is null)
          {
             throw new ArgumentNullException(nameof(action));
          }
-
-         return Unit.Default;
       }
 
-      private static Unit ValidateFunction<T1, T2>(Func<T1, T2> function)
+      private static void ValidateFunction<T1, T2>(Func<T1, T2> function)
       {
          if (function is null)
          {
             throw new ArgumentNullException(nameof(function));
          }
-
-         return Unit.Default;
       }
 
-      private static Unit ValidateMatch<TL, TR>(Func<TLeft, TL> left, Func<TRight, TR> right)
+      private static void ValidateMatch<TL, TR>(Func<TLeft, TL> left, Func<TRight, TR> right)
       {
          if (left is null)
          {
@@ -143,8 +137,6 @@ namespace EasyMonads
          {
             throw new ArgumentNullException(nameof(right));
          }
-
-         return Unit.Default;
       }
 
       public TResult Match<TResult>(Func<TLeft, TResult> left, Func<TRight, TResult> right, TResult neither)

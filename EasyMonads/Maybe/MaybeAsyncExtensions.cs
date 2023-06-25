@@ -82,12 +82,9 @@ namespace EasyMonads
       {
          return await maybe.MatchAsync(
             () => Maybe<TValue>.None,
-            value =>
-            {
-               return predicate(value)
-                  ? value
-                  : Maybe<TValue>.None;
-            });
+            value => predicate(value)
+               ? value
+               : Maybe<TValue>.None);
       }
    }
 }

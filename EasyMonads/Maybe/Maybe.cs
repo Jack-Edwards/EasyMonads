@@ -23,13 +23,13 @@ namespace EasyMonads
 
       public static Task<Maybe<TValue>> FromAsync(Task<TValue> value)
       {
-         async Task<Maybe<TValue>> unpack()
+         async Task<Maybe<TValue>> Unpack()
          {
             var result = await value;
             return From(result);
          }
 
-         return unpack();
+         return Unpack();
       }
 
       public bool IsSome
@@ -241,7 +241,7 @@ namespace EasyMonads
             return default;
          }
 
-         var bound = bind(_value);
+         Maybe<TIntermediate> bound = bind(_value);
 
          if (bound.IsNone)
          {
@@ -266,6 +266,6 @@ namespace EasyMonads
       }
 
       public static readonly Maybe<TValue> None = default;
-      public static implicit operator Maybe<TValue>(TValue value) => Maybe<TValue>.From(value);
+      public static implicit operator Maybe<TValue>(TValue value) => From(value);
    }
 }
