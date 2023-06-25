@@ -165,7 +165,7 @@ namespace EasyMonads
       public async Task<TResult> MatchAsync<TResult>(Func<TLeft, Task<TResult>> leftAsync, Func<TRight, TResult> right, TResult neither)
       {
          ValidateMatch(leftAsync, right);
-
+         
 #pragma warning disable CS8524
          return _state switch
          {
@@ -270,7 +270,7 @@ namespace EasyMonads
                : Either<TLeft, TResult>.Neither;
       }
 
-      public Unit DoRight(Action<TRight> right)
+      public Either<TLeft, TRight> DoRight(Action<TRight> right)
       {
          ValidateAction(right);
 
@@ -279,10 +279,10 @@ namespace EasyMonads
             right(_right);
          }
 
-         return Unit.Default;
+         return this;
       }
 
-      public async Task<Unit> DoRightAsync(Func<TRight, Task> rightAsync)
+      public async Task<Either<TLeft, TRight>> DoRightAsync(Func<TRight, Task> rightAsync)
       {
          ValidateFunction(rightAsync);
 
@@ -291,10 +291,10 @@ namespace EasyMonads
             await rightAsync(_right);
          }
 
-         return Unit.Default;
+         return this;
       }
 
-      public Unit DoLeftOrNeither(Action leftOrNeither)
+      public Either<TLeft, TRight> DoLeftOrNeither(Action leftOrNeither)
       {
          ValidateAction(leftOrNeither);
 
@@ -303,10 +303,10 @@ namespace EasyMonads
             leftOrNeither();
          }
 
-         return Unit.Default;
+         return this;
       }
 
-      public Unit DoLeftOrNeither(Action<TLeft> left, Action neither)
+      public Either<TLeft, TRight> DoLeftOrNeither(Action<TLeft> left, Action neither)
       {
          ValidateAction(left);
          ValidateAction(neither);
@@ -321,10 +321,10 @@ namespace EasyMonads
             neither();
          }
 
-         return Unit.Default;
+         return this;
       }
 
-      public async Task<Unit> DoLeftOrNeitherAsync(Func<TLeft, Task> leftAsync, Action neither)
+      public async Task<Either<TLeft, TRight>> DoLeftOrNeitherAsync(Func<TLeft, Task> leftAsync, Action neither)
       {
          ValidateFunction(leftAsync);
          ValidateAction(neither);
@@ -339,7 +339,7 @@ namespace EasyMonads
             neither();
          }
 
-         return Unit.Default;
+         return this;
       }
 
       public Maybe<TRight> ToMaybe()

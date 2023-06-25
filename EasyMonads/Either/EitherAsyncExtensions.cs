@@ -29,32 +29,36 @@ namespace EasyMonads
          return await eitherResult.MatchAsync(leftAsync, right, neither);
       }
 
-      public static async Task<Unit> DoRightAsync<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Action<TRight> right)
+      public static async Task<Either<TLeft, TRight>> DoRightAsync<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Action<TRight> right)
       {
          Either<TLeft, TRight> eitherResult = await either;
          return eitherResult.DoRight(right);
       }
 
-      public static async Task<Unit> DoRightAsync<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Func<TRight, Task> rightAsync)
+      public static async Task<Either<TLeft, TRight>> DoRightAsync<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Func<TRight, Task> rightAsync)
       {
          Either<TLeft, TRight> eitherResult = await either;
          return await eitherResult.DoRightAsync(rightAsync);
       }
 
+      public static async Task<Either<TLeft, TRight>> DoLeftOrNeitherAsync<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Action leftOrNeither)
+      {
+         Either<TLeft, TRight> eitherResult = await either;
+         return eitherResult.DoLeftOrNeither(leftOrNeither);
+      }
+      
+      public static async Task<Either<TLeft, TRight>> DoLeftOrNeitherAsync<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Action<TLeft> left, Action neither)
+      {
+         Either<TLeft, TRight> eitherResult = await either;
+         return eitherResult.DoLeftOrNeither(left, neither);
+      }
+      
       public static Task<Either<TLeft, TResult>> MapAsync<TLeft, TRight, TResult>(this Task<Either<TLeft, TRight>> either, Func<TRight, Either<TLeft, TResult>> map)
       {
          return either.MatchAsync(
             left: Either<TLeft, TResult>.FromLeft,
             right: map,
             neither: Either<TLeft, TResult>.Neither);
-      }
-
-      public static Task<Either<TResult, TRight>> MapLeftAsync<TLeft, TRight, TResult>(this Task<Either<TLeft, TRight>> either, Func<TLeft, Either<TResult, TRight>> map)
-      {
-         return either.MatchAsync(
-            left: map,
-            right: Either<TResult, TRight>.FromRight,
-            neither: Either<TResult, TRight>.Neither);
       }
 
       public static Task<Either<TLeft, TResult>> MapAsync<TLeft, TRight, TResult>(this Task<Either<TLeft, TRight>> either, Func<TRight, Task<Either<TLeft, TResult>>> map)
@@ -64,7 +68,23 @@ namespace EasyMonads
             rightAsync: map,
             neither: Either<TLeft, TResult>.Neither);
       }
+      
+      public static Task<Either<TResult, TRight>> MapLeftAsync<TLeft, TRight, TResult>(this Task<Either<TLeft, TRight>> either, Func<TLeft, Either<TResult, TRight>> map)
+      {
+         return either.MatchAsync(
+            left: map,
+            right: Either<TResult, TRight>.FromRight,
+            neither: Either<TResult, TRight>.Neither);
+      }
 
+      public static Task<Either<TResult, TRight>> MapLeftAsync<TLeft, TRight, TResult>(this Task<Either<TLeft, TRight>> either, Func<TLeft, Task<Either<TResult, TRight>>> mapAsync)
+      {
+         return either.MatchAsync(
+            leftAsync: mapAsync,
+            right: Either<TResult, TRight>.FromRight,
+            neither: Either<TResult, TRight>.Neither);
+      }
+      
       public static Task<Either<TLeft, TResult>> BindAsync<TLeft, TRight, TResult>(this Task<Either<TLeft, TRight>> either, Func<TRight, Task<Either<TLeft, TResult>>> bindAsync)
       {
          return either.MapAsync(
