@@ -35,6 +35,13 @@ namespace EasyMonads
          return await maybeResult.IfSomeAsync(someAsync);
       }
 
+      public static Task<TValue> SomeOrDefaultAsync<TValue>(this Task<Maybe<TValue>> maybe, TValue defaultValue)
+      {
+         return maybe.MatchAsync(
+            () => defaultValue,
+            x => x);
+      }
+
       public static Task<Maybe<TResult>> MapAsync<TValue, TResult>(this Task<Maybe<TValue>> maybe, Func<TValue, TResult> map)
       {
          return maybe.MatchAsync(
@@ -47,6 +54,13 @@ namespace EasyMonads
          return maybe.MatchAsync(
             () => Maybe<TResult>.None,
             value => bind(value));
+      }
+
+      public static Task<Maybe<TResult>> BindAsync<TValue, TResult>(this Task<Maybe<TValue>> maybe, Func<TValue, Task<Maybe<TResult>>> bindAsync)
+      {
+         return maybe.MatchAsync(
+            () => Maybe<TResult>.None,
+            bindAsync);
       }
 
       public static Task<Either<TLeft, TValue>> ToEitherAsync<TLeft, TValue>(this Task<Maybe<TValue>> maybe, TLeft left)
