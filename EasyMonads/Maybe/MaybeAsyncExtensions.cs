@@ -35,6 +35,13 @@ namespace EasyMonads
          return await maybeResult.IfSomeAsync(someAsync);
       }
 
+      public static Task<TValue> SomeOrDefaultAsync<TValue>(this Task<Maybe<TValue>> maybe, TValue defaultValue)
+      {
+         return maybe.MatchAsync(
+            () => defaultValue,
+            x => x);
+      }
+
       public static Task<Maybe<TResult>> MapAsync<TValue, TResult>(this Task<Maybe<TValue>> maybe, Func<TValue, TResult> map)
       {
          return maybe.MatchAsync(

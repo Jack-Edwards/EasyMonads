@@ -13,7 +13,7 @@
       <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
       <IncludeSymbols>True</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-      <Version>1.4.1</Version>
+      <Version>1.4.2</Version>
    </PropertyGroup>
 
 </Project>
