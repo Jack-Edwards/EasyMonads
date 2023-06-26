@@ -90,6 +90,18 @@ namespace EasyMonads
             : _value;
       }
 
+      public TResult Match<TResult>(TResult none, Func<TValue, TResult> some)
+      {
+         if (some is null)
+         {
+            throw new ArgumentNullException(nameof(some));
+         }
+
+         return IsSome
+            ? some(_value)
+            : none;
+      }
+
       public TResult Match<TResult>(Func<TResult> none, Func<TValue, TResult> some)
       {
          if (none is null)
