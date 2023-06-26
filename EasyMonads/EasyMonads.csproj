@@ -7,10 +7,11 @@
       <Title>EasyMonads</Title>
       <Authors>Jack Edwards</Authors>
       <Description>Maybe&lt;T&gt; and Either&lt;TLeft, TRight&gt; monads</Description>
-      <PackageProjectUrl></PackageProjectUrl>
+      <PackageProjectUrl>https://www.nuget.org/packages/EasyMonads/</PackageProjectUrl>
       <RepositoryUrl>https://github.com/Jack-Edwards/EasyMonads</RepositoryUrl>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
       <IncludeSymbols>True</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
       <Version>1.4.3</Version>
