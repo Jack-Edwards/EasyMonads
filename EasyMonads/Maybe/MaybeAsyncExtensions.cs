@@ -91,7 +91,7 @@ namespace EasyMonads
             value =>
             {
                return bind(value).Match(
-                  () => default,
+                  () => Maybe<TResult>.None,
                   intermediate =>
                   {
                      TResult result = project(value, intermediate);

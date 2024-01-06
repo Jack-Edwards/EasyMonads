@@ -29,7 +29,7 @@ namespace EasyMonads.Test
       }
 
       [Test]
-      public void StaticNeither_Works()
+      public void Static_Neither_Works()
       {
          Either<Unit, string> sut = Either<Unit, string>.Neither;
 
@@ -53,7 +53,7 @@ namespace EasyMonads.Test
       [Test]
       public void FromRight_Works()
       {
-         string value = "test";
+         const string value = "test";
          bool doRightInvoked = false;
 
          Either<Unit, string> sut = Either<Unit, string>.FromRight(value);
@@ -75,9 +75,9 @@ namespace EasyMonads.Test
       }
 
       [Test]
-      public void FromRight_Returns_Neither_If_Null_Provided()
+      public void FromRightNullable_Returns_Neither_If_Null_Provided()
       {
-         Either<Unit, string> sut = Either<Unit, string>.FromRight(null);
+         Either<Unit, string> sut = Either<Unit, string>.FromRightNullable(null);
          sut.DoLeftOrNeither(
             _ => Assert.Fail(),
             () => Assert.IsTrue(true));
@@ -102,7 +102,7 @@ namespace EasyMonads.Test
       [Test]
       public void FromLeft_Works()
       {
-         int value = 5;
+         const int value = 5;
          bool doLeftInvoked = false;
 
          Either<int, Unit> sut = Either<int, Unit>.FromLeft(value);
@@ -126,9 +126,9 @@ namespace EasyMonads.Test
       }
 
       [Test]
-      public void FromLeft_Returns_Neither_If_Null_Provided()
+      public void FromLeftNullable_Returns_Neither_If_Null_Provided()
       {
-         Either<object, Unit> sut = Either<object, Unit>.FromLeft(null);
+         Either<object, Unit> sut = Either<object, Unit>.FromLeftNullable(null);
          sut.DoLeftOrNeither(
             _ => Assert.Fail(),
             () => Assert.IsTrue(true));
@@ -153,7 +153,7 @@ namespace EasyMonads.Test
       [Test]
       public async Task FromRightAsync_Works()
       {
-         string value = "test";
+         const string value = "test";
          Task<string> task = Task.FromResult(value);
 
          Task<Either<Unit, string>> eitherTask = Either<Unit, string>.FromRightAsync(task);
@@ -180,9 +180,9 @@ namespace EasyMonads.Test
       [Test]
       public async Task FromRightAsync_Neithers_If_Null()
       {
-         Task<string> task = Task.FromResult((string)null);
+         Task<string?> task = Task.FromResult((string?)null);
 
-         Task<Either<Unit, string>> eitherTask = Either<Unit, string>.FromRightAsync(task);
+         Task<Either<Unit, string>> eitherTask = Either<Unit, string>.FromRightNullableAsync(task);
          Either<Unit, string> sut = await eitherTask;
 
          sut.DoLeftOrNeither(
@@ -204,11 +204,11 @@ namespace EasyMonads.Test
       }
 
       [Test]
-      public async Task FromRightAsync_Works_With_Default_Left()
+      public async Task FromRightNullableAsync_Works_With_Default_Left()
       {
-         Task<string> task = Task.FromResult((string)null);
+         Task<string?> task = Task.FromResult((string?)null);
 
-         Task<Either<int, string>> eitherTask = Either<int, string>.FromRightAsync(task, 3);
+         Task<Either<int, string>> eitherTask = Either<int, string>.FromRightNullableAsync(task, 3);
          Either<int, string> sut = await eitherTask;
 
          bool doLeftInvoked = true;

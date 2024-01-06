@@ -5,11 +5,11 @@ namespace EasyMonads
 {
    public readonly struct Either<TLeft, TRight>
    {
-      private readonly TLeft _left;
-      private readonly TRight _right;
+      private readonly TLeft? _left;
+      private readonly TRight? _right;
       private readonly EitherState _state;
-
-      private Either(TLeft left)
+      
+      private Either(TLeft? left)
       {
          _right = default;
 
@@ -25,7 +25,7 @@ namespace EasyMonads
          }
       }
 
-      private Either(TRight right)
+      private Either(TRight? right)
       {
          _left = default;
 
@@ -41,42 +41,68 @@ namespace EasyMonads
          }
       }
 
-      public static Either<TLeft, TRight> FromRight(TRight value)
-      {
-         return value is null
-            ? Neither
-            : new Either<TLeft, TRight>(value);
-      }
+      public static Either<TLeft, TRight> From(TRight value)
+         => new Either<TLeft, TRight>(value);
+      
+      public static Either<TLeft, TRight> FromNullable(TRight? value)
+         => new Either<TLeft, TRight>(value);
 
+      public static Either<TLeft, TRight> From(TLeft value)
+         => new Either<TLeft, TRight>(value);
+      
+      public static Either<TLeft, TRight> FromNullable(TLeft? value)
+         => new Either<TLeft, TRight>(value);
+      
+      public static Either<TLeft, TRight> FromRight(TRight value)
+         => new Either<TLeft, TRight>(value);
+      
+      public static Either<TLeft, TRight> FromRightNullable(TRight? value)
+         => new Either<TLeft, TRight>(value);
+      
       public static async Task<Either<TLeft, TRight>> FromRightAsync(Task<TRight> rightAsync)
       {
-         var right = await rightAsync;
-         return right is null
-            ? Neither
-            : right;
+         TRight right = await rightAsync;
+         return new Either<TLeft, TRight>(right);
+      }
+      
+      public static async Task<Either<TLeft, TRight>> FromRightNullableAsync(Task<TRight?> rightAsync)
+      {
+         TRight? right = await rightAsync;
+         return new Either<TLeft, TRight>(right);
       }
 
       public static async Task<Either<TLeft, TRight>> FromRightAsync(Task<TRight> rightAsync, TLeft left)
       {
-         var right = await rightAsync;
+         TRight right = await rightAsync;
          return right is null
-            ? FromLeft(left)
-            : FromRight(right);
+            ? new Either<TLeft, TRight>(left)
+            : new Either<TLeft, TRight>(right);
+      }
+      
+      public static async Task<Either<TLeft, TRight>> FromRightNullableAsync(Task<TRight?> rightAsync, TLeft left)
+      {
+         TRight? right = await rightAsync;
+         return right is null
+            ? new Either<TLeft, TRight>(left)
+            : new Either<TLeft, TRight>(right);
       }
 
       public static Either<TLeft, TRight> FromLeft(TLeft value)
-      {
-         return value is null
-            ? Neither
-            : new Either<TLeft, TRight>(value);
-      }
+         => new Either<TLeft, TRight>(value);
+      
+      public static Either<TLeft, TRight> FromLeftNullable(TLeft? value)
+         => new Either<TLeft, TRight>(value);
 
       public static async Task<Either<TLeft, TRight>> FromLeftAsync(Task<TLeft> leftAsync)
       {
-         var left = await leftAsync;
-         return left is null
-            ? Neither
-            : left;
+         TLeft left = await leftAsync;
+         return new Either<TLeft, TRight>(left);
+      }
+      
+      public static async Task<Either<TLeft, TRight>> FromLeftNullableAsync(Task<TLeft?> leftAsync)
+      {
+         TLeft? left = await leftAsync;
+         return new Either<TLeft, TRight>(left);
       }
 
       public bool IsLeft
@@ -91,14 +117,14 @@ namespace EasyMonads
       public TRight RightOrDefault(TRight defaultValue)
       {
          return IsRight
-            ? _right
+            ? _right!
             : defaultValue;
       }
 
       public TLeft LeftOrDefault(TLeft defaultValue)
       {
          return IsLeft
-            ? _left
+            ? _left!
             : defaultValue;
       }
       
@@ -147,8 +173,8 @@ namespace EasyMonads
          return _state switch
          {
             EitherState.Neither => neither,
-            EitherState.Left => left(_left),
-            EitherState.Right => right(_right)
+            EitherState.Left => left(_left!),
+            EitherState.Right => right(_right!)
          };
 #pragma warning restore CS8524
       }
@@ -158,7 +184,7 @@ namespace EasyMonads
          ValidateFunction(right);
 
          return IsRight
-            ? right(_right)
+            ? right(_right!)
             : leftOrNeither;
       }
 
@@ -170,8 +196,8 @@ namespace EasyMonads
          return _state switch
          {
             EitherState.Neither => neither,
-            EitherState.Left => await leftAsync(_left),
-            EitherState.Right => right(_right)
+            EitherState.Left => await leftAsync(_left!),
+            EitherState.Right => right(_right!)
          };
 #pragma warning restore CS8524
       }
@@ -184,8 +210,8 @@ namespace EasyMonads
          return _state switch
          {
             EitherState.Neither => neither,
-            EitherState.Left => left(_left),
-            EitherState.Right => await rightAsync(_right)
+            EitherState.Left => left(_left!),
+            EitherState.Right => await rightAsync(_right!)
          };
 #pragma warning restore CS8524
       }
@@ -198,8 +224,8 @@ namespace EasyMonads
          return _state switch
          {
             EitherState.Neither => neither,
-            EitherState.Left => await leftAsync(_left),
-            EitherState.Right => await rightAsync(_right)
+            EitherState.Left => await leftAsync(_left!),
+            EitherState.Right => await rightAsync(_right!)
          };
 #pragma warning restore CS8524
       }
@@ -209,9 +235,9 @@ namespace EasyMonads
          ValidateFunction(map);
 
          return IsRight
-            ? map(_right)
+            ? map(_right!)
             : IsLeft
-               ? Either<TLeft, TResult>.FromLeft(_left)
+               ? Either<TLeft, TResult>.FromLeft(_left!)
                : Either<TLeft, TResult>.Neither;
       }
 
@@ -220,9 +246,9 @@ namespace EasyMonads
          ValidateFunction(map);
 
          return IsLeft
-            ? map(_left)
+            ? map(_left!)
             : IsRight
-               ? Either<TResult, TRight>.FromRight(_right)
+               ? Either<TResult, TRight>.FromRight(_right!)
                : Either<TResult, TRight>.Neither;
       }
 
@@ -231,9 +257,9 @@ namespace EasyMonads
          ValidateFunction(mapAsync);
 
          return IsRight
-            ? await mapAsync(_right)
+            ? await mapAsync(_right!)
             : IsLeft
-               ? Either<TLeft, TResult>.FromLeft(_left)
+               ? Either<TLeft, TResult>.FromLeft(_left!)
                : Either<TLeft, TResult>.Neither;
       }
 
@@ -242,9 +268,9 @@ namespace EasyMonads
          ValidateFunction(bind);
 
          return IsRight
-            ? bind(_right)
+            ? bind(_right!)
             : IsLeft
-               ? Either<TLeft, TResult>.FromLeft(_left)
+               ? Either<TLeft, TResult>.FromLeft(_left!)
                : Either<TLeft, TResult>.Neither;
       }
 
@@ -253,9 +279,9 @@ namespace EasyMonads
          ValidateFunction(bind);
 
          return IsLeft
-            ? bind(_left)
+            ? bind(_left!)
             : IsRight
-               ? Either<TResult, TRight>.FromRight(_right)
+               ? Either<TResult, TRight>.FromRight(_right!)
                : Either<TResult, TRight>.Neither;
       }
 
@@ -264,9 +290,9 @@ namespace EasyMonads
          ValidateFunction(bindAsync);
 
          return IsRight
-            ? await bindAsync(_right)
+            ? await bindAsync(_right!)
             : IsLeft
-               ? Either<TLeft, TResult>.FromLeft(_left)
+               ? Either<TLeft, TResult>.FromLeft(_left!)
                : Either<TLeft, TResult>.Neither;
       }
 
@@ -276,7 +302,7 @@ namespace EasyMonads
 
          if (IsRight)
          {
-            right(_right);
+            right(_right!);
          }
 
          return this;
@@ -288,7 +314,7 @@ namespace EasyMonads
 
          if (IsRight)
          {
-            await rightAsync(_right);
+            await rightAsync(_right!);
          }
 
          return this;
@@ -313,7 +339,7 @@ namespace EasyMonads
 
          if (IsLeft)
          {
-            left(_left);
+            left(_left!);
          }
 
          if (IsNeither)
@@ -331,7 +357,7 @@ namespace EasyMonads
 
          if (IsLeft)
          {
-            await leftAsync(_left);
+            await leftAsync(_left!);
          }
 
          if (IsNeither)
@@ -345,8 +371,15 @@ namespace EasyMonads
       public Maybe<TRight> ToMaybe()
       {
          return IsRight
-            ? Maybe<TRight>.From(_right)
+            ? Maybe<TRight>.From(_right!)
             : Maybe<TRight>.None;
+      }
+
+      public Maybe<TLeft> ToLeftMaybe()
+      {
+         return IsLeft
+            ? Maybe<TLeft>.From(_left!)
+            : Maybe<TLeft>.None;
       }
 
       public Either<TLeft, TResult> Select<TResult>(Func<TRight, TResult> map)
@@ -369,15 +402,17 @@ namespace EasyMonads
             return Neither;
          }
 
-         return predicate(_right)
+         return predicate(_right!)
             ? this
             : Neither;
       }
 
       public static Either<TLeft, TRight> Neither => new Either<TLeft, TRight>();
+      
+      public static implicit operator Either<TLeft, TRight>(TLeft? left)
+         => new Either<TLeft, TRight>(left);
 
-      public static implicit operator Either<TLeft, TRight>(TLeft left) => FromLeft(left);
-
-      public static implicit operator Either<TLeft, TRight>(TRight right) => FromRight(right);
+      public static implicit operator Either<TLeft, TRight>(TRight? right)
+         => new Either<TLeft, TRight>(right);
    }
 }
