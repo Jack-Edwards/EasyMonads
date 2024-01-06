@@ -9,15 +9,20 @@ For example, trying to instantiate a monad with a null value will throw an excep
 So will returning `null` from a `Match` statement.
 The "work-around" in these situations is using methods with "Unsafe" in the name, as if `null` is an implicitly hazardous thing.
 
-Instead of throwing runtime exceptions or asking you to use methods with a different naming convention, this library will try to let you do what you want and continue running.
+Instead of throwing runtime exceptions or asking you to use methods with a different naming convention*, this library will try to let you do what you want and continue running.
+
+_* There are some method names in this library that include the word "Nullable".
+The behavior of these methods is the same as their standard counterparts.
+The reason for these "Nullable" alternatives is to support projects with \<nullable\> enabled; you may provide nullable items to these methods without nullability warnings._
+
 The monads supported by this library all have some default state:
 
 * Maybe\<T> => None
-* Either\<TLeft, TRight> => Bottom
+* Either\<TLeft, TRight> => Neither
 
-Rather than throw an exception, the monads you get back will just be in their default states.
+Rather than throw an exception when receiving null values, the monads you get back will just be in their default states.
 These states should already be handled by the caller - there is nothing "unsafe" about it.
-Especially when compared to throwing an exception which will probably terminate the program.
+Especially when compared to throwing an exception which may terminate the program.
 
 Similarly, if you want to return `null` in your `Match` statements, why shouldn't you?
 This library is not going to get in the way of writing the code you want to write.
