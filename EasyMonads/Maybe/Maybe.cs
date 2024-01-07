@@ -6,9 +6,9 @@ namespace EasyMonads
    public readonly struct Maybe<TValue>
    {
       private readonly MaybeState _state;
-      private readonly TValue _value;
+      private readonly TValue? _value;
 
-      private Maybe(TValue value)
+      public Maybe(TValue? value)
       {
          _value = value;
          _state = value is null
@@ -17,19 +17,21 @@ namespace EasyMonads
       }
 
       public static Maybe<TValue> From(TValue value)
+         => new Maybe<TValue>(value);
+      
+      public static Maybe<TValue> FromNullable(TValue? value)
+         => new Maybe<TValue>(value);
+
+      public static async Task<Maybe<TValue>> FromAsync(Task<TValue> value)
       {
-         return new Maybe<TValue>(value);
+         TValue result = await value;
+         return new Maybe<TValue>(result);
       }
-
-      public static Task<Maybe<TValue>> FromAsync(Task<TValue> value)
+      
+      public static async Task<Maybe<TValue>> FromNullableAsync(Task<TValue?> value)
       {
-         async Task<Maybe<TValue>> Unpack()
-         {
-            var result = await value;
-            return From(result);
-         }
-
-         return Unpack();
+         TValue? result = await value;
+         return new Maybe<TValue>(result);
       }
 
       public bool IsSome
@@ -47,7 +49,7 @@ namespace EasyMonads
 
          if (IsSome)
          {
-            some(_value);
+            some(_value!);
          }
 
          return this;
@@ -62,7 +64,7 @@ namespace EasyMonads
 
          if (IsSome)
          {
-            await someAsync(_value);
+            await someAsync(_value!);
          }
 
          return this;
@@ -87,7 +89,7 @@ namespace EasyMonads
       {
          return IsNone
             ? defaultValue
-            : _value;
+            : _value!;
       }
 
       public TResult Match<TResult>(TResult none, Func<TValue, TResult> some)
@@ -98,7 +100,7 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? some(_value)
+            ? some(_value!)
             : none;
       }
 
@@ -115,7 +117,7 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? some(_value)
+            ? some(_value!)
             : none();
       }
 
@@ -132,7 +134,7 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? await someAsync(_value)
+            ? await someAsync(_value!)
             : none();
       }
 
@@ -149,7 +151,7 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? some(_value)
+            ? some(_value!)
             : await noneAsync();
       }
 
@@ -166,7 +168,7 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? await someAsync(_value)
+            ? await someAsync(_value!)
             : await noneAsync();
       }
 
@@ -178,7 +180,7 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? map(_value)
+            ? map(_value!)
             : Maybe<TResult>.None;
       }
 
@@ -190,7 +192,7 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? await mapAsync(_value)
+            ? await mapAsync(_value!)
             : Maybe<TResult>.None;
       }
 
@@ -202,7 +204,7 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? bind(_value)
+            ? bind(_value!)
             : Maybe<TResult>.None;
       }
 
@@ -214,35 +216,35 @@ namespace EasyMonads
          }
 
          return IsSome
-            ? await bindAsync(_value)
+            ? await bindAsync(_value!)
             : Maybe<TResult>.None;
       }
 
       public Either<TLeft, TValue> ToEither<TLeft>(TLeft left)
       {
          return IsSome
-            ? Either<TLeft, TValue>.FromRight(_value)
+            ? Either<TLeft, TValue>.FromRightNullable(_value)
             : Either<TLeft, TValue>.FromLeft(left);
       }
 
       public Either<TValue, Unit> ToLeftEither()
       {
          return IsSome
-            ? Either<TValue, Unit>.FromLeft(_value)
+            ? Either<TValue, Unit>.FromLeftNullable(_value)
             : Either<TValue, Unit>.FromRight(Unit.Default);
       }
 
       public Either<TValue, TRight> ToLeftEither<TRight>(TRight right)
       {
          return IsSome
-            ? Either<TValue, TRight>.FromLeft(_value)
+            ? Either<TValue, TRight>.FromLeftNullable(_value)
             : Either<TValue, TRight>.FromRight(right);
       }
 
       public Maybe<TResult> Select<TResult>(Func<TValue, TResult> map)
       {
          return IsSome
-            ? Maybe<TResult>.From(map(_value))
+            ? Maybe<TResult>.From(map(_value!))
             : default;
       }
 
@@ -253,14 +255,14 @@ namespace EasyMonads
             return default;
          }
 
-         Maybe<TIntermediate> bound = bind(_value);
+         Maybe<TIntermediate> bound = bind(_value!);
 
          if (bound.IsNone)
          {
             return default;
          }
 
-         TResult result = project(_value, bound._value);
+         TResult result = project(_value!, bound._value!);
 
          if (result is null)
          {
@@ -272,12 +274,12 @@ namespace EasyMonads
 
       public Maybe<TValue> Where(Func<TValue, bool> predicate)
       {
-         return IsSome && predicate(_value)
+         return IsSome && predicate(_value!)
             ? this
             : default;
       }
 
       public static readonly Maybe<TValue> None = default;
-      public static implicit operator Maybe<TValue>(TValue value) => From(value);
+      public static implicit operator Maybe<TValue>(TValue? value) => new Maybe<TValue>(value);
    }
 }

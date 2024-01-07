@@ -118,7 +118,7 @@ namespace EasyMonads
       public static Task<Maybe<TRight>> ToMaybeTask<TLeft, TRight>(this Task<Either<TLeft, TRight>> either)
       {
          return either.MatchAsync(
-            left => Maybe<TRight>.None,
+            _ => Maybe<TRight>.None,
             right => right,
             Maybe<TRight>.None);
       }
@@ -144,7 +144,7 @@ namespace EasyMonads
       public static async Task<Either<TLeft, TRight>> Where<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Func<TRight, bool> predicate)
       {
          return await either.MatchAsync(
-            left => Either<TLeft, TRight>.Neither,
+            _ => Either<TLeft, TRight>.Neither,
             right => predicate(right)
                ? right
                : Either<TLeft, TRight>.FromRight(right),

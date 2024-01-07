@@ -2,7 +2,7 @@
 
    <PropertyGroup>
       <TargetFramework>netstandard2.1</TargetFramework>
-      <Nullable>disable</Nullable>
+      <Nullable>enable</Nullable>
       <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
       <Title>EasyMonads</Title>
       <Authors>Jack Edwards</Authors>
@@ -14,7 +14,8 @@
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <IncludeSymbols>True</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-      <Version>1.4.3</Version>
+      <Version>2.0.0</Version>
+      <LangVersion>9</LangVersion>
    </PropertyGroup>
 
    <ItemGroup>
