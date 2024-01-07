@@ -8,7 +8,7 @@ namespace EasyMonads
       private readonly MaybeState _state;
       private readonly TValue? _value;
 
-      private Maybe(TValue? value)
+      public Maybe(TValue? value)
       {
          _value = value;
          _state = value is null

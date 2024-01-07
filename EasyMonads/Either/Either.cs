@@ -9,7 +9,7 @@ namespace EasyMonads
       private readonly TRight? _right;
       private readonly EitherState _state;
       
-      private Either(TLeft? left)
+      public Either(TLeft? left)
       {
          _right = default;
 
@@ -25,7 +25,7 @@ namespace EasyMonads
          }
       }
 
-      private Either(TRight? right)
+      public Either(TRight? right)
       {
          _left = default;
 
@@ -71,19 +71,19 @@ namespace EasyMonads
          return new Either<TLeft, TRight>(right);
       }
 
-      public static async Task<Either<TLeft, TRight>> FromRightAsync(Task<TRight> rightAsync, TLeft left)
+      public static async Task<Either<TLeft, TRight>> FromRightAsync(Task<TRight> rightAsync, TLeft leftIfNull)
       {
          TRight right = await rightAsync;
          return right is null
-            ? new Either<TLeft, TRight>(left)
+            ? new Either<TLeft, TRight>(leftIfNull)
             : new Either<TLeft, TRight>(right);
       }
       
-      public static async Task<Either<TLeft, TRight>> FromRightNullableAsync(Task<TRight?> rightAsync, TLeft left)
+      public static async Task<Either<TLeft, TRight>> FromRightNullableAsync(Task<TRight?> rightAsync, TLeft leftIfNull)
       {
          TRight? right = await rightAsync;
          return right is null
-            ? new Either<TLeft, TRight>(left)
+            ? new Either<TLeft, TRight>(leftIfNull)
             : new Either<TLeft, TRight>(right);
       }
 
@@ -407,7 +407,8 @@ namespace EasyMonads
             : Neither;
       }
 
-      public static Either<TLeft, TRight> Neither => new Either<TLeft, TRight>();
+      public static Either<TLeft, TRight> Neither
+         => new Either<TLeft, TRight>();
       
       public static implicit operator Either<TLeft, TRight>(TLeft? left)
          => new Either<TLeft, TRight>(left);
