@@ -85,6 +85,21 @@ namespace EasyMonads
          return this;
       }
 
+      public async Task<Maybe<TValue>> IfNoneAsync(Func<Task> noneAsync)
+      {
+         if (noneAsync is null)
+         {
+            throw new ArgumentNullException(nameof(noneAsync));
+         }
+
+         if (IsNone)
+         {
+            await noneAsync();
+         }
+
+         return this;
+      }
+      
       public TValue? SomeOrDefault()
       {
          return IsNone
