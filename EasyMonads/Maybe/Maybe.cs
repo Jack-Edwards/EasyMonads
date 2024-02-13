@@ -85,13 +85,20 @@ namespace EasyMonads
          return this;
       }
 
+      public TValue? SomeOrDefault()
+      {
+         return IsNone
+            ? default
+            : _value!;
+      }
+      
       public TValue SomeOrDefault(TValue defaultValue)
       {
          return IsNone
             ? defaultValue
             : _value!;
       }
-
+      
       public TResult Match<TResult>(TResult none, Func<TValue, TResult> some)
       {
          if (some is null)
