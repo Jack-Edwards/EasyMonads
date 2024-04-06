@@ -144,6 +144,14 @@ namespace EasyMonads
          }
       }
 
+      private static void ValidateFunction<T1>(Func<T1> function)
+      {
+         if (function is null)
+         {
+            throw new ArgumentNullException(nameof(function));
+         }
+      }
+      
       private static void ValidateFunction<T1, T2>(Func<T1, T2> function)
       {
          if (function is null)
@@ -363,6 +371,24 @@ namespace EasyMonads
          if (IsNeither)
          {
             neither();
+         }
+
+         return this;
+      }
+
+      public async Task<Either<TLeft, TRight>> DoLeftOrNeitherAsync(Func<TLeft, Task> leftAsync, Func<Task> neitherAsync)
+      {
+         ValidateFunction(leftAsync);
+         ValidateFunction(neitherAsync);
+
+         if (IsLeft)
+         {
+            await leftAsync(_left!);
+         }
+
+         if (IsNeither)
+         {
+            await neitherAsync();
          }
 
          return this;
