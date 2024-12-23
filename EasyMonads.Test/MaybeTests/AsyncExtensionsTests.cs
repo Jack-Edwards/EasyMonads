@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 using System.Threading.Tasks;
 
-namespace EasyMonads.Test
+namespace EasyMonads.Test.MaybeTests
 {
    [TestFixture]
-   internal class MaybeAsyncExtensionsTests
+   internal class AsyncExtensionsTests
    {
       [Test]
       public async Task BindAsync_Matches_None()
