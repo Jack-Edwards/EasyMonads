@@ -17,8 +17,8 @@ The reason for these "Nullable" alternatives is to support projects with \<nulla
 
 The monads supported by this library all have some default state:
 
-* Maybe\<T> => None
-* Either\<TLeft, TRight> => Neither
+* `Maybe<T> => None`
+* `Either<TLeft, TRight> => Neither`
 
 Rather than throw an exception when receiving null values, the monads you get back will just be in their default states.
 These states should already be handled by the caller - there is nothing "unsafe" about it.
@@ -56,6 +56,53 @@ int nonNullableDays = daysSinceLastAccident.GetSomeOrDefault(0);
 double daysDouble = daysSinceLastAccident.Match(
    () => 0.0,
    x => double.Parse(x));
+```
+
+Convenience functions are available in `EasyMonads.Core` for simple `Maybe<T>` construction.
+
+* `Some(value)` should be used when you expect the value to be non-null. It throws if null.
+* `None` gets implicitly converted to `Maybe<T>`
+* `Maybe(value)` constructs from a null or non-null value.
+
+```cs
+using static EasyMonads.Core;
+
+...
+    
+var answer = Some(42);              // Maybe<int> answer = 42;
+Maybe<int> nothing = None;          // var nothing = Maybe<int>.None;
+
+Maybe<object> TryFoo()
+{
+    ...
+    return None;                    // return Maybe<object>.None;
+}
+        
+object foo = GetFoo();
+var result = Maybe(foo)             // Maybe<object>.From(foo)
+
+```
+
+Maybe has equality checks, truthiness, and implicit conversions.
+
+| LHS                      | True | RHS                   | 
+|--------------------------|------|-----------------------|
+| `Some(42)`               | `==` | `42`                  |
+| `Some(42)`               | `!=` | `12`                  |
+| `Some(42)`               | `==` | `Some(42)`            |
+| `Some(42)`               | `!=` | `Some(12)`            |
+| `Some(42)`               | `!=` | `Some(new object())`  |
+| `Maybe<object> a = None` | `!=` | `Maybe<int> b = None` |
+| `Maybe<int> a = None`    | `==` | `Maybe<int> b = None` |
+
+```cs
+Maybe<object> maybe = TryFoo();
+    
+bool success = maybe;               // bool success = maybe.IsSome;
+
+if (maybe)                          // if (maybe.IsSome)
+    ...
+
 ```
 
 ### Either\<TLeft, TRight>

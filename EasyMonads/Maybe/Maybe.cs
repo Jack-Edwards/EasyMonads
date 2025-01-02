@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace EasyMonads
 {
-   public readonly struct Maybe<TValue>
+   public readonly struct Maybe<TValue> : IEquatable<Maybe<TValue>>
    {
       private readonly MaybeState _state;
       private readonly TValue? _value;
@@ -300,8 +301,58 @@ namespace EasyMonads
             ? this
             : default;
       }
-
+      
       public static readonly Maybe<TValue> None = default;
       public static implicit operator Maybe<TValue>(TValue? value) => new Maybe<TValue>(value);
+      public static implicit operator Maybe<TValue>(Maybe.None _) => None;
+
+      /// <summary>
+      /// Some is Truthy
+      /// </summary>
+      public static bool operator true(Maybe<TValue> value) =>
+         value.IsSome;
+
+      /// <summary>
+      /// None is Falsy
+      /// </summary>
+      public static bool operator false(Maybe<TValue> value) =>
+         value.IsNone;
+      
+      /// <summary>
+      /// For ease of use in Boolean expressions.
+      /// </summary>
+      public static implicit operator bool(Maybe<TValue> maybe) => 
+         maybe.IsSome;
+      
+      public static bool operator ==(Maybe<TValue> lhs, Maybe<TValue> rhs) =>
+         lhs.Equals(rhs);
+
+      public static bool operator !=(Maybe<TValue> lhs, Maybe<TValue> rhs) =>
+         !lhs.Equals(rhs);
+
+      public bool Equals(Maybe<TValue> other)
+      {
+         // States differ
+         if (_state != other._state) return false;
+
+         // States are `None`
+         if (_state == MaybeState.None) return true;
+
+         // States are `Some` so compare the values
+         return EqualityComparer<TValue?>.Default.Equals(_value, other._value);
+      }
+
+      public override bool Equals(object? obj)
+      {
+         return obj is Maybe<TValue> other && Equals(other);
+      }
+
+      public override int GetHashCode()
+      {
+         var stateHash = _state.GetHashCode();
+         var valueHash = _value is null ? 0 : EqualityComparer<TValue?>.Default.GetHashCode(_value);
+
+         return HashCode.Combine(stateHash, valueHash); 
+      }
    }
 }
