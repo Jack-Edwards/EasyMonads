@@ -1,0 +1,43 @@
+name: publish
+on:
+  workflow_dispatch: # Allow running the workflow manually from the GitHub UI
+  release:
+    types:
+      - published # Run the workflow when a new GitHub release is published
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace }}/nuget
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Get all history to allow automatic versioning using MinVer
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Pack
+        run: dotnet pack -c Release --no-build --output ${{ env.NuGetDirectory }}
+
+      - name: Push nupkg
+        run: dotnet nuget push ${{ env.NuGetDirectory }}/*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Push snupkg
+        run: dotnet nuget push ${{ env.NuGetDirectory }}/*.snupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

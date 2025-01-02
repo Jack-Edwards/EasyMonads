@@ -14,12 +14,24 @@
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <IncludeSymbols>True</IncludeSymbols>
       <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-      <Version>2.2.0</Version>
       <LangVersion>9</LangVersion>
    </PropertyGroup>
 
    <ItemGroup>
       <None Include="../README.md" Pack="true" PackagePath="\"/>
    </ItemGroup>
+
+   <ItemGroup>
+     <PackageReference Include="MinVer" Version="6.0.0">
+       <PrivateAssets>all</PrivateAssets>
+       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+     </PackageReference>
+   </ItemGroup>
+
+   <PropertyGroup Label="MinVer">
+      <MinVerAutoIncrement>minor</MinVerAutoIncrement>
+      <MinVerDefaultPreReleaseIdentifiers>preview.0</MinVerDefaultPreReleaseIdentifiers>
+      <MinVerTagPrefix>v</MinVerTagPrefix>
+   </PropertyGroup>
    
 </Project>
