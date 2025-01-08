@@ -358,6 +358,18 @@ namespace EasyMonads
          return this;
       }
 
+      public async Task<Either<TLeft, TRight>> DoLeftOrNeitherAsync(Func<Task> leftOrNeitherAsync)
+      {
+         ValidateFunction(leftOrNeitherAsync);
+
+         if (!IsRight)
+         {
+            await leftOrNeitherAsync();
+         }
+         
+         return this;
+      }
+      
       public async Task<Either<TLeft, TRight>> DoLeftOrNeitherAsync(Func<TLeft, Task> leftAsync, Action neither)
       {
          ValidateFunction(leftAsync);

@@ -46,6 +46,12 @@ namespace EasyMonads
          Either<TLeft, TRight> eitherResult = await either;
          return eitherResult.DoLeftOrNeither(leftOrNeither);
       }
+
+      public static async Task<Either<TLeft, TRight>> DoLeftOrNeitherAsync<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Func<Task> leftOrNeitherAsync)
+      {
+         Either<TLeft, TRight> eitherResult = await either;
+         return await eitherResult.DoLeftOrNeitherAsync(leftOrNeitherAsync);
+      }
       
       public static async Task<Either<TLeft, TRight>> DoLeftOrNeitherAsync<TLeft, TRight>(this Task<Either<TLeft, TRight>> either, Action<TLeft> left, Action neither)
       {
