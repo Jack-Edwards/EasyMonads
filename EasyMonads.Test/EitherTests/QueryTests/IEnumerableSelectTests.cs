@@ -54,10 +54,11 @@ namespace EasyMonads.Test.EitherTests.QueryTests
             { 2, "2" }
          };
          
-         IEnumerable<Either<Unit, string>> results = await from number in GetRangeAsync()
-            from text in ConvertToStringAsync(number)
+         IEnumerable<Either<Unit, string>> results = await
+            from number in GetRangeAsync()
+            from text in ConvertToString(number)
             select text;
-
+         
          foreach (var result in results.Select((x, i) => new { Value = x, Index = i }))
          {
             result.Value.DoRight(x => Assert.AreEqual(resultDict[result.Index], x));
@@ -66,17 +67,14 @@ namespace EasyMonads.Test.EitherTests.QueryTests
 
          return;
          
-         IEnumerable<Task<Either<Unit, int>>> GetRangeAsync()
+         Task<IEnumerable<Either<Unit, int>>> GetRangeAsync()
          {
-            foreach (var entry in resultDict)
-            {
-               yield return Either<Unit, int>.FromRight(entry.Key).AsTask();
-            }
+            return resultDict.Select(x => Either<Unit, int>.FromRight(x.Key)).AsTask();
          }
          
-         Task<Either<Unit, string>> ConvertToStringAsync(int number)
+         Either<Unit, string> ConvertToString(int number)
          {
-            return Either<Unit, string>.From(number.ToString()).AsTask();
+            return Either<Unit, string>.From(number.ToString());
          }
       }
    }
