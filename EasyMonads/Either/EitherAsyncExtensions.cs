@@ -149,7 +149,9 @@ namespace EasyMonads
             neither: Either<TLeft, TResult>.Neither);
       }
 
-      public static async Task<Either<TLeft, TResult>> SelectMany<TLeft, TRight, TIntermediate, TResult>(this Task<Either<TLeft, TRight>> either, Func<TRight, Task<Either<TLeft, TIntermediate>>> bind, Func<TRight, TIntermediate, TResult> project)
+      public static async Task<Either<TLeft, TResult>> SelectMany<TLeft, TRight, TIntermediate, TResult>(this Task<Either<TLeft, TRight>> either,
+         Func<TRight, Task<Either<TLeft, TIntermediate>>> bind,
+         Func<TRight, TIntermediate, TResult> project)
       {
          return await either.BindAsync(async right =>
             await bind(right).BindAsync(delegate (TIntermediate intermediate)
