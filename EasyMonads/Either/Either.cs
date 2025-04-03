@@ -159,7 +159,7 @@ namespace EasyMonads
             throw new ArgumentNullException(nameof(function));
          }
       }
-
+      
       private static void ValidateMatch<TL, TR>(Func<TLeft, TL> left, Func<TRight, TR> right)
       {
          if (left is null)
@@ -173,6 +173,16 @@ namespace EasyMonads
          }
       }
 
+      private static void ValidateMatch<TN, TL, TR>(Func<TN> neither, Func<TLeft, TL> left, Func<TRight, TR> right)
+      {
+         if (neither is null)
+         {
+            throw new ArgumentNullException(nameof(neither));
+         }
+         
+         ValidateMatch(left, right);
+      }
+      
       public TResult Match<TResult>(Func<TLeft, TResult> left, Func<TRight, TResult> right, TResult neither)
       {
          ValidateMatch(left, right);
@@ -187,6 +197,20 @@ namespace EasyMonads
 #pragma warning restore CS8524
       }
 
+      public TResult Match<TResult>(Func<TLeft, TResult> left, Func<TRight, TResult> right, Func<TResult> neither)
+      {
+         ValidateMatch(neither, left, right);
+
+#pragma warning disable CS8524
+         return _state switch
+         {
+            EitherState.Neither => neither(),
+            EitherState.Left => left(_left!),
+            EitherState.Right => right(_right!)
+         };
+#pragma warning restore CS8524
+      }
+      
       public TResult Match<TResult>(TResult leftOrNeither, Func<TRight, TResult> right)
       {
          ValidateFunction(right);
